@@ -25,8 +25,11 @@ dev = [
 ]
 
 [project.scripts]
-edgexchange = "edgexchange.edgexchange:main"
+edgexchange = "application.backend.edgexchange:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["application"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["backend"]
 testpaths = ["tests"]
