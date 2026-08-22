@@ -39,10 +39,10 @@ uv sync
 uv run edgexchange
 ```
 
-**3. Open a second terminal in the repo directory and start the frontend:**
+**3. Open a second terminal wherever your repo is cloned and start the frontend:**
 
 ```bash
-cd application/frontend
+cd edgexchange/application/frontend
 npm install next
 npm run dev
 ```
