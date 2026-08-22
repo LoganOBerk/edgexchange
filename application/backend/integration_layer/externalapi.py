@@ -3,7 +3,7 @@ import pandas as pd
 from math import inf
 
 import yfinance as yf
-from ..common.errors import FetchingError
+from common.errors import FetchingError
 
 logging.getLogger("yfinance").setLevel(logging.CRITICAL)
 

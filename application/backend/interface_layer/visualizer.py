@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backend_bases import CloseEvent
 import pandas as pd
 from tabulate import tabulate
-from ..common.constants import PRICE_REFRESH_INTERVAL
+from common.constants import PRICE_REFRESH_INTERVAL
 
 # PURPOSE:
 #   -Visualizer provides a data visualization abstraction

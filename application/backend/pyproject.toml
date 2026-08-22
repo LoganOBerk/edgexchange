@@ -6,7 +6,6 @@ build-backend = "hatchling.build"
 name = "EdgeXchange"
 version = "0.1.0"
 description = "An app that allows for making mock investments with real market data."
-readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.110.0",
@@ -25,11 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-edgexchange = "application.backend.edgexchange:main"
-
-[tool.hatch.build.targets.wheel]
-packages = ["application"]
+edgexchange = "edgexchange:main"
 
 [tool.pytest.ini_options]
-pythonpath = ["backend"]
 testpaths = ["tests"]

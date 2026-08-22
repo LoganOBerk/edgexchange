@@ -2,8 +2,8 @@ import asyncio
 import json
 from typing import AsyncGenerator
 
-from ..common.constants import PRICE_REFRESH_INTERVAL
-from ..common.errors import ValidationError
+from common.constants import PRICE_REFRESH_INTERVAL
+from common.errors import ValidationError
 from .routes import connect
 
 

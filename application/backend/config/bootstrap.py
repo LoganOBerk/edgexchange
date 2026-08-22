@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from ..interface_layer import Cli, Visualizer, Frontend
-from ..sanitization_layer import Sanitizer
-from ..validation_layer import Validator
-from ..service_layer import Service
-from ..persistence_layer import Database
+from interface_layer import Cli, Visualizer, Frontend
+from sanitization_layer import Sanitizer
+from validation_layer import Validator
+from service_layer import Service
+from persistence_layer import Database
 
 
 # PURPOSE:
