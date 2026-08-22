@@ -60,10 +60,10 @@ class App:
     # RAISES: None
     def establish_path(self, db_source : str) -> Path:
         base_dir = Path(__file__).parent
-        while not (base_dir / 'pyproject.toml').exists():
+        while not (base_dir / 'database').exists():
             base_dir = base_dir.parent
 
-        db_dir = base_dir / 'data'
+        db_dir = base_dir / 'database'
 
         db_dir.mkdir(exist_ok = True)
 

@@ -154,10 +154,8 @@ class FrontendApi:
 
                 if data:
                     yield json.dumps(data) + "\n"
-
-                await asyncio.sleep(PRICE_REFRESH_INTERVAL)
-
                 
+                await asyncio.sleep(PRICE_REFRESH_INTERVAL)
             
         return stream()
 
