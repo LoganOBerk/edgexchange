@@ -7,7 +7,6 @@ __pycache__/
 .venv/
 venv/
 .uv/
-uv.lock
 *.db
 *.sqlite3
 .pytest_cache/
@@ -17,14 +16,14 @@ uv.lock
 htmlcov/
 
 # ===== Node / Next.js (frontend) =====
-/node_modules
-/.pnp
+node_modules/
+.pnp/
 .pnp.js
 .yarn/install-state.gz
-/coverage
-/.next/
-/out/
-/build
+coverage/
+.next/
+out/
+build/
 next-env.d.ts
 *.tsbuildinfo
 
