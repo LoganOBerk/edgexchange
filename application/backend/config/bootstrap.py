@@ -55,12 +55,12 @@ class App:
     # PRECONDITION:
     #	-db_source; non-empty string ending with '.db'
     # POSTCONDITION:
-    #	-'data/'; subdirectory exists relative to pyproject.toml
-    #	-db_path; points to db_source inside 'data/'
+    #	-'database/'; subdirectory exists relative to application/
+    #	-db_path; points to db_source inside 'database/'
     # RAISES: None
     def establish_path(self, db_source : str) -> Path:
         base_dir = Path(__file__).parent
-        while not (base_dir / 'database').exists():
+        while not (base_dir / 'application').exists():
             base_dir = base_dir.parent
 
         db_dir = base_dir / 'database'
