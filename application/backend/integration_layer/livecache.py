@@ -128,7 +128,7 @@ def abort(ticker : str) -> None:
 # OUTPUT: None
 # PRECONDITION: None
 # POSTCONDITION:
-#    -cache; quotes refreshed daily, tickers accessed within PRICE_REFRESH_INTERVAL**PRICE_REFRESH_INTERVAL are refreshed
+#    -cache; quotes refreshed daily, tickers accessed within selfexp(PRICE_REFRESH_INTERVAL) are refreshed
 #    -cache_lock; all waiters are notified on cache changes, a failed quote may cause a request to wait another run cycle or serve a slightly stale value for a cycle
 # RAISES: None
 def run():
@@ -136,27 +136,27 @@ def run():
     while True:
         latency = 0
         start = time.time()
+        
+        active_stocks = set()
+        stale_quotes = set()
 
-        hot = set()
-        expired = set()
         with cache_lock:
-
             for ticker in cache.keys():
-                is_hot = read(ticker, "price") is None or read(ticker, "last_accessed") >= start - selfexp(PRICE_REFRESH_INTERVAL)
-                is_expired = read(ticker, "quote") is None or read(ticker, "quote_date") < date.today()
+                active = read(ticker, "price") is None or read(ticker, "last_accessed") >= start - selfexp(PRICE_REFRESH_INTERVAL)
+                quote_stale = read(ticker, "quote") is None or read(ticker, "quote_date") < date.today()
 
-                if is_hot:
-                    hot.add(ticker)
+                if active:
+                    active_stocks.add(ticker)
 
-                if is_hot and is_expired:
-                    expired.add(ticker)
+                if active and quote_stale:
+                    stale_quotes.add(ticker)
 
         
         def fetch_info():
-            if expired:
+            if stale_quotes:
                 try:
  
-                    stock_info = eapi.get_stock_info(expired)
+                    stock_info = eapi.get_stock_info(stale_quotes)
 
                     with cache_lock:
                         for ticker, quote in stock_info.items():
@@ -176,8 +176,8 @@ def run():
 
 
         def fetch_prices():
-            if hot:
-                ticker_prices = eapi.get_stock_prices(hot)
+            if active_stocks:
+                ticker_prices = eapi.get_stock_prices(active_stocks)
 
                 with cache_lock:
                     for ticker, price in ticker_prices.items():
