@@ -1,7 +1,7 @@
 import time
 import threading
 
-from threading import RLock, Lock, Condition
+from threading import RLock, Condition
 from collections import defaultdict
 from datetime import date
 
