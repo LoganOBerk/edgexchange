@@ -20,107 +20,116 @@ _lock = RLock()
 cache_lock = Condition(_lock)
 
 # INPUT:
-#    - ticker(str); ticker symbol to update
-#    - price(float); price to inject into quote
+#    -ticker(str); ticker symbol to update
+#    -price(float); price to inject into quote
 # OUTPUT: None
 # PRECONDITION:
-#    - cache[ticker]["quote"]; must not be None
+#    -cache[ticker]["quote"]; must not be None
 # POSTCONDITION:
-#    - cache; quote["price"] updated to price for ticker
+#    -cache; quote["price"] updated to price for ticker
 # RAISES: None
-def sync_price(ticker: str, price: float) -> None:
+def sync_price(ticker : str, price : float) -> None:
     cache[ticker]["quote"]["price"] = price
 
 
 # INPUT:
-#    - ticker(str); ticker symbol to update
-#    - quote(dict); quote data to write
+#    -ticker(str); ticker symbol to update
+#    -quote(dict); quote data to write
 # OUTPUT: None
 # PRECONDITION:
-#    - ticker; must exist in cache
+#    -ticker; must exist in cache
 # POSTCONDITION:
-#    - cache; quote, quote_date, and last_accessed updated for ticker
+#    -cache; quote, quote_date, and last_accessed updated for ticker
 # RAISES: None
-def write_quote(ticker: str, quote: dict) -> None:
+def write_quote(ticker : str, quote : dict) -> None:
     cache[ticker]["quote"] = quote
     cache[ticker]["quote_date"] = date.today()
 
 
 # INPUT:
-#    - ticker(str); ticker symbol to update
-#    - price(float); price to write
+#    -ticker(str); ticker symbol to update
+#    -price(float); price to write
 # OUTPUT: None
 # PRECONDITION:
-#    - ticker; must exist in cache
-#    - cache[ticker]["quote"]; must not be None (sync_price precondition)
+#    -ticker; must exist in cache
+#    -cache[ticker]["quote"]; must not be None (sync_price precondition)
 # POSTCONDITION:
-#    - cache; price, quote["price"], and last_accessed updated for ticker
+#    -cache; price, quote["price"], and last_accessed updated for ticker
 # RAISES: None
-def write_price(ticker: str, price: float) -> None:
+def write_price(ticker : str, price : float) -> None:
     price += inject_volatility(price)
     sync_price(ticker, price)
     cache[ticker]["price"] = price
 
 
 # INPUT:
-#    - key(str); ticker symbol to look up
-#    - value(str); field name to retrieve
+#    -ticker(str); ticker symbol to look up
+#    -value(str); field name to retrieve
 # OUTPUT:
-#    - result(any); value at cache[key][value], or None if key or field not found
+#    -result(any); value at cache[key][value], or None if key or field not found
 # PRECONDITION: None
 # POSTCONDITION: None
 # RAISES: None
-def read(key : str, value : str) -> any:
-    return cache.get(key, {}).get(value)
+def read(ticker : str, value : str) -> any:
+    return cache.get(ticker, {}).get(value)
 
 
 # INPUT:
-#    - ticker(str); ticker symbol to stamp
+#    -ticker(str); ticker symbol to stamp
 # OUTPUT: None
 # PRECONDITION:
-#    - ticker; must exist in cache
+#    -ticker; must exist in cache
 # POSTCONDITION:
-#    - cache; last_accessed updated to current time for ticker
+#    -cache; last_accessed updated to current time for ticker
 # RAISES: None
-def stamp(ticker: str) -> None:
+def stamp(ticker : str) -> None:
     cache[ticker]["last_accessed"] = time.time()
 
     
 # INPUT:
-#    - keys(list[str]); ticker symbols to register in cache
+#    -tickers(list[str]); ticker symbols to register in cache
 # OUTPUT: None
 # PRECONDITION: None
 # POSTCONDITION:
-#    - cache; all tickers in keys exist with default values
-#    - cache; last_accessed stamped for all tickers to signal demand
+#    -cache; all tickers in keys exist with default values, check stamp POSTCONDITION
 # RAISES: None
-def touch(keys: list[str]) -> None:
-    for key in keys:
-        _ = cache[key]
-        stamp(key)
+def touch(tickers : list[str]) -> None:
+    for ticker in tickers:
+        _ = cache[ticker]
+        stamp(ticker)
 
 
 # INPUT:
-#    - ticker(str); ticker symbol to remove
+#    -ticker(str); ticker symbol to remove
 # OUTPUT: None
 # PRECONDITION:
-#    - ticker; must exist in cache
+#    -ticker; must exist in cache
 # POSTCONDITION:
-#    - cache; ticker and all associated data removed
-# RAISES:
-#    - KeyError; ticker not in cache
+#    -cache; ticker and all associated data removed
+# RAISES: None
 def rm(ticker : str) -> None:
     del cache[ticker]
+
+
+# INPUT:
+#    -ticker(str); ticker symbol to abort
+# OUTPUT: None
+# PRECONDITION:
+#    -ticker; if not None and has no quote, must already exist in cache (e.g. via touch())
+# POSTCONDITION:
+#    -cache; if ticker exists with quote still unset, its entry is removed; otherwise no-op
+# RAISES: None
+def abort(ticker : str) -> None:
+    if ticker and read(ticker, "quote") is None:
+        rm(ticker)
 
 
 # INPUT: None
 # OUTPUT: None
 # PRECONDITION: None
 # POSTCONDITION:
-#    - cache; quotes refreshed daily via eapi.get_stock_info for any ticker with missing or stale quote
-#    - cache; prices refreshed every PRICE_REFRESH_INTERVAL seconds via eapi.get_stock_prices for all tickers
-#    - cache; all waiters on cache_lock notified after each price update or on FetchingError
-#    - cache; tickers that fail quote fetching with no existing quote are removed
+#    -cache; quotes refreshed daily, tickers accessed within PRICE_REFRESH_INTERVAL**PRICE_REFRESH_INTERVAL are refreshed
+#    -cache_lock; all waiters are notified on cache changes, a failed quote may cause a request to wait another run cycle or serve a slightly stale value for a cycle
 # RAISES: None
 def run():
     signal = Condition(_lock)
@@ -149,18 +158,18 @@ def run():
  
                     stock_info = eapi.get_stock_info(expired)
 
+                    with cache_lock:
+                        for ticker, quote in stock_info.items():
+                            write_quote(ticker, quote)
+                            signal.notify_all()
+
                 except FetchingError as e:
                     with cache_lock:
-                        if e.ticker and read(e.ticker, "quote") is None:
-                            rm(e.ticker)
+                        abort(e.ticker)
                         cache_lock.notify_all()
                         signal.notify_all()
-                    return
             
-                with cache_lock:
-                    for ticker, quote in stock_info.items():
-                        write_quote(ticker, quote)
-                        signal.notify_all()
+                
 
         t1 = threading.Thread(target = fetch_info)
         t1.start()
@@ -201,7 +210,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_stock_price()
     @staticmethod
-    def get_stock_price(ticker: str) -> float:
+    def get_stock_price(ticker : str) -> float:
         
         with cache_lock:
             touch([ticker])
@@ -215,7 +224,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.does_ticker_exist()
     @staticmethod
-    def does_ticker_exist(ticker: str) -> bool:
+    def does_ticker_exist(ticker : str) -> bool:
         exist = True
 
         try:
@@ -233,7 +242,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_float()
     @staticmethod
-    def get_float(ticker: str) -> int:
+    def get_float(ticker : str) -> int:
         try:
 
             if persistent_cache[ticker]["float"] is None:
@@ -251,7 +260,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_sector()
     @staticmethod
-    def get_sector(ticker: str):
+    def get_sector(ticker : str):
         try:
 
             if persistent_cache[ticker]["sector"] is None:
@@ -269,7 +278,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_stock_info()
     @staticmethod
-    def get_stock_info(ticker: str):
+    def get_stock_info(ticker : str):
         with cache_lock:
             touch([ticker])
             cache_lock.wait_for(lambda: read(ticker, "quote") is not None)
@@ -281,7 +290,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_stock_prices()
     @staticmethod
-    def get_stock_prices(tickers: list[str]) -> dict[str, float]:
+    def get_stock_prices(tickers : list[str]) -> dict[str, float]:
         
         ticker_package = {}
 

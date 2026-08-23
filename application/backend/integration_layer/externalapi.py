@@ -23,7 +23,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails
     @staticmethod
-    def does_ticker_exist(ticker: str) -> bool:
+    def does_ticker_exist(ticker : str) -> bool:
 
         try: 
 
@@ -47,7 +47,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails
     @staticmethod
-    def get_float(ticker: str) -> int:
+    def get_float(ticker : str) -> int:
 
         try:
 
@@ -72,7 +72,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails at any point
     @staticmethod
-    def get_stock_prices(tickers: list[str]) -> dict[str, float]:
+    def get_stock_prices(tickers : list[str]) -> dict[str, float]:
 
         ticker_package = {}
 
@@ -123,7 +123,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails or ticker has no price history
     @staticmethod
-    def get_stock_info(tickers: list[str]) -> dict[str, dict]:
+    def get_stock_info(tickers : list[str]) -> dict[str, dict]:
         
         stock_info = {}
 
@@ -195,7 +195,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails
     @staticmethod
-    def get_sector(ticker: str) -> str:
+    def get_sector(ticker : str) -> str:
         try:
 
             sector = yf.Ticker(ticker).info.get("sector") or "Unknown"
