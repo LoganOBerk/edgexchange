@@ -1,7 +1,7 @@
 import time
 import threading
 
-from threading import RLock, Condition
+from threading import Lock, Condition
 from collections import defaultdict
 from datetime import date
 
@@ -16,7 +16,7 @@ from .externalapi import ExternalApi as eapi
 cache = defaultdict(lambda : {"price" : None, "quote" : None, "quote_date" : None, "last_accessed" : None})
 persistent_cache = defaultdict(lambda : {"sector" : None, "float" : None})
 
-_lock = RLock()
+_lock = Lock()
 cache_lock = Condition(_lock)
 
 # INPUT:
