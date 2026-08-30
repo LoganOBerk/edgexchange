@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from .environment import Environment as env
 from interface_layer import Cli, Visualizer, Frontend
 from sanitization_layer import Sanitizer
 from validation_layer import Validator
@@ -31,13 +32,10 @@ class App:
     #	-frontend=False; self.vis is Visualizer; self.display is Cli with serv, san, val, vis injection
     # RAISES: None
     def init(self, testing : bool, frontend : bool) -> None:
-        if testing:
-            db_path = ':memory:'
-        else:
-            db_path = self.establish_path('edgexchange.db')
+        db_source = env.get_database_test_source() if testing else env.get_database_source()
 
         self.san = Sanitizer()
-        self.db = Database(db_path)
+        self.db = Database(db_source)
         self.serv = Service(self.db)
         self.val = Validator(self.serv)
 
@@ -47,29 +45,6 @@ class App:
             self.vis = Visualizer()
             self.display = Cli(self.serv, self.san, self.val, self.vis)
 
-
-    # INPUT:
-    #	-db_source(str); database filename
-    # OUTPUT:
-    #	-db_path(Path); full path to database file
-    # PRECONDITION:
-    #	-db_source; non-empty string ending with '.db'
-    # POSTCONDITION:
-    #	-'database/'; subdirectory exists relative to application/
-    #	-db_path; points to db_source inside 'database/'
-    # RAISES: None
-    def establish_path(self, db_source : str) -> Path:
-        base_dir = Path(__file__).parent
-        while not (base_dir / 'application').exists():
-            base_dir = base_dir.parent
-
-        db_dir = base_dir / 'database'
-
-        db_dir.mkdir(exist_ok = True)
-
-        db_path = db_dir / db_source
-
-        return db_path 
 
 
     # INPUT: None

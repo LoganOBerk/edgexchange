@@ -4,7 +4,6 @@ from contextlib import contextmanager
 
 from common.errors import DatabaseError
 
-
 # PURPOSE: 
 #   -Database provides a SQLite database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
