@@ -29,7 +29,7 @@ class Database:
         create_user_table = '''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
-                login TEXT UNIQUE NOT NULL,
+                login TEXT UNIQUE COLLATE NOCASE NOT NULL,
                 password TEXT NOT NULL,
                 balance REAL NOT NULL DEFAULT 0
             );
