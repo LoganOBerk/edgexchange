@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from .environment import Environment as env
 from interface_layer import Cli, Visualizer, Frontend
 from sanitization_layer import Sanitizer
