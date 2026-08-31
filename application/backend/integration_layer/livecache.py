@@ -20,15 +20,14 @@ cache_lock = Condition(Lock())
 
 # INPUT:
 #    -ticker(str); ticker symbol to update
-#    -price(float); price to inject into quote
 # OUTPUT: None
-# PRECONDITION:
-#    -cache[ticker]["quote"]; must not be None
+# PRECONDITION: None
 # POSTCONDITION:
-#    -cache; quote["price"] updated to price for ticker
+#    -cache; quote["price"] updated to price for ticker if quote exists
 # RAISES: None
-def sync_price(ticker : str, price : float) -> None:
-    cache[ticker]["quote"]["price"] = price
+def sync_price(ticker : str) -> None:
+    if read(ticker, "quote") is not None:
+        cache[ticker]["quote"]["price"] = read(ticker, "price")
 
 
 # INPUT:
@@ -38,11 +37,13 @@ def sync_price(ticker : str, price : float) -> None:
 # PRECONDITION:
 #    -ticker; must exist in cache
 # POSTCONDITION:
-#    -cache; quote, quote_date, and last_accessed updated for ticker
+#    -cache; quote and quote_date updated for ticker while keeping quote in sync
 # RAISES: None
 def write_quote(ticker : str, quote : dict) -> None:
     cache[ticker]["quote"] = quote
     cache[ticker]["quote_date"] = date.today()
+    sync_price(ticker)
+    
 
 
 # INPUT:
@@ -51,14 +52,13 @@ def write_quote(ticker : str, quote : dict) -> None:
 # OUTPUT: None
 # PRECONDITION:
 #    -ticker; must exist in cache
-#    -cache[ticker]["quote"]; must not be None (sync_price precondition)
 # POSTCONDITION:
-#    -cache; price, quote["price"], and last_accessed updated for ticker
+#    -cache; price, and last_accessed updated for ticker while keeping quote in sync
 # RAISES: None
 def write_price(ticker : str, price : float) -> None:
     price += inject_volatility(price)
-    sync_price(ticker, price)
     cache[ticker]["price"] = price
+    sync_price(ticker)
 
 
 # INPUT:
@@ -177,14 +177,13 @@ def run():
         t1.join()
         t2.join()
 
-        
+
         with cache_lock:
             for ticker, quote in fetched_info.items():
                 write_quote(ticker, quote)
                 
             for ticker, price in fetched_prices.items():
-                if read(ticker, "quote") is not None:
-                    write_price(ticker, price)
+                write_price(ticker, price)
                     
             cache_lock.notify_all()
             
