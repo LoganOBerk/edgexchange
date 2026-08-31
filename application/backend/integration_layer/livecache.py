@@ -162,10 +162,11 @@ def quote_needs_refresh(ticker : str) -> bool:
 
 # INPUT: None
 # OUTPUT: None
-# PRECONDITION: None
+# PRECONDITION: 
+#   -cache; quotes and price for a stock are always in sync
 # POSTCONDITION:
 #    -cache; quotes refreshed daily, tickers accessed within selfexp(PRICE_REFRESH_INTERVAL) are refreshed
-#    -cache_lock; all waiters are notified on cache changes, a failed quote may cause a request to wait another run cycle or serve a slightly stale value for a cycle
+#    -cache_lock; all waiters are notified on cache changes, failed quote either results in longer wait time or stale quote
 # RAISES: None
 def run():
     while True:
