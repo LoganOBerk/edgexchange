@@ -123,6 +123,43 @@ def abort(ticker : str) -> None:
         rm(ticker)
 
 
+# INPUT:
+#    -ticker(str); a ticker symbol
+# OUTPUT:
+#   -needs_refresh(bool); a True or False representing if a refresh is needed
+# PRECONDITION:
+#    -ticker; must not be None
+# POSTCONDITION:
+#    -needs_refresh; represents if a refresh is needed via True/False
+# RAISES: None
+def stock_needs_refresh(ticker : str) -> bool:
+    stock_is_empty = read(ticker, "price") is None
+    stock_is_expired = stock_is_empty or read(ticker, "last_accessed") >= time.time() - selfexp(PRICE_REFRESH_INTERVAL)
+
+    needs_refresh = stock_is_expired
+
+    return needs_refresh
+
+
+# INPUT:
+#    -ticker(str); a ticker symbol
+# OUTPUT:
+#   -needs_refresh(bool); a True or False representing if a refresh is needed
+# PRECONDITION:
+#    -ticker; must not be None
+# POSTCONDITION:
+#    -needs_refresh; represents if a refresh is needed via True/False
+# RAISES: None
+def quote_needs_refresh(ticker : str) -> bool:
+    stock_is_active = stock_needs_refresh(ticker)
+    quote_is_empty = read(ticker, "quote") is None
+    quote_is_expired = quote_is_empty or read(ticker, "quote_date") < date.today()
+
+    needs_refresh = stock_is_active and quote_is_expired
+
+    return needs_refresh
+
+
 # INPUT: None
 # OUTPUT: None
 # PRECONDITION: None
@@ -135,19 +172,17 @@ def run():
         latency = 0
         start = time.time()
         
-        active_stocks = set()
-        stale_quotes = set()
+        pending_stocks = set()
+        pending_quotes = set()
 
         with cache_lock:
             for ticker in cache.keys():
-                active = read(ticker, "price") is None or read(ticker, "last_accessed") >= start - selfexp(PRICE_REFRESH_INTERVAL)
-                quote_stale = read(ticker, "quote") is None or read(ticker, "quote_date") < date.today()
+                
+                if stock_needs_refresh(ticker):
+                    pending_stocks.add(ticker)
 
-                if active:
-                    active_stocks.add(ticker)
-
-                if active and quote_stale:
-                    stale_quotes.add(ticker)
+                if quote_needs_refresh(ticker):
+                    pending_quotes.add(ticker)
 
 
         fetched_info = {}
@@ -155,7 +190,7 @@ def run():
             nonlocal fetched_info
             try:
 
-                fetched_info = eapi.get_stock_info(stale_quotes)
+                fetched_info = eapi.get_stock_info(pending_quotes)
 
             except FetchingError as e:
                 with cache_lock:
@@ -169,7 +204,7 @@ def run():
         fetched_prices = {}
         def fetch_prices():
             nonlocal fetched_prices
-            fetched_prices = eapi.get_stock_prices(active_stocks)
+            fetched_prices = eapi.get_stock_prices(pending_stocks)
 
         t2 = threading.Thread(target = fetch_prices)
         t2.start()
