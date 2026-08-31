@@ -181,14 +181,17 @@ def run():
         with cache_lock:
             for ticker, quote in fetched_info.items():
                 write_quote(ticker, quote)
+                
             for ticker, price in fetched_prices.items():
                 if read(ticker, "quote") is not None:
                     write_price(ticker, price)
+                    
             cache_lock.notify_all()
             
         
         end = time.time()
         latency = end - start
+        
         time.sleep(max(0, PRICE_REFRESH_INTERVAL - latency))
 
 threading.Thread(target = run, daemon = True).start()
