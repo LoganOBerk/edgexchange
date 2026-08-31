@@ -124,6 +124,7 @@ def abort(ticker : str) -> None:
         rm(ticker)
 
 
+
 # INPUT: None
 # OUTPUT: None
 # PRECONDITION: None
@@ -132,7 +133,6 @@ def abort(ticker : str) -> None:
 #    -cache_lock; all waiters are notified on cache changes, a failed quote may cause a request to wait another run cycle or serve a slightly stale value for a cycle
 # RAISES: None
 def run():
-    signal = Condition(_lock)
     while True:
         latency = 0
         start = time.time()
@@ -151,50 +151,47 @@ def run():
                 if active and quote_stale:
                     stale_quotes.add(ticker)
 
-        
+
+        fetched_info = {}
         def fetch_info():
+            nonlocal fetched_info
             if stale_quotes:
                 try:
- 
-                    stock_info = eapi.get_stock_info(stale_quotes)
 
-                    with cache_lock:
-                        for ticker, quote in stock_info.items():
-                            write_quote(ticker, quote)
-                            signal.notify_all()
+                    fetched_info = eapi.get_stock_info(stale_quotes)
 
                 except FetchingError as e:
                     with cache_lock:
                         abort(e.ticker)
                         cache_lock.notify_all()
-                        signal.notify_all()
-            
-                
-
         t1 = threading.Thread(target = fetch_info)
         t1.start()
 
 
+        fetched_prices = {}
         def fetch_prices():
+            nonlocal fetched_prices
             if active_stocks:
-                ticker_prices = eapi.get_stock_prices(active_stocks)
-
-                with cache_lock:
-                    for ticker, price in ticker_prices.items():
-                        signal.wait_for(lambda: read(ticker, "quote") is not None)
-                        write_price(ticker, price)
-                        cache_lock.notify_all()
+                fetched_prices = eapi.get_stock_prices(active_stocks)
 
         t2 = threading.Thread(target = fetch_prices)
         t2.start()
 
-
         t1.join()
         t2.join()
-                                 
+
+        
+        with cache_lock:
+            for ticker, quote in fetched_info.items():
+                write_quote(ticker, quote)
+            for ticker, price in fetched_prices.items():
+                if read(ticker, "quote") is not None:
+                    write_price(ticker, price)
+            cache_lock.notify_all()
+            
+        
         end = time.time()
         latency = end - start
-
         time.sleep(max(0, PRICE_REFRESH_INTERVAL - latency))
 
 threading.Thread(target = run, daemon = True).start()
