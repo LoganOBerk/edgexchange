@@ -16,8 +16,7 @@ from .externalapi import ExternalApi as eapi
 cache = defaultdict(lambda : {"price" : None, "quote" : None, "quote_date" : None, "last_accessed" : None})
 persistent_cache = defaultdict(lambda : {"sector" : None, "float" : None})
 
-_lock = Lock()
-cache_lock = Condition(_lock)
+cache_lock = Condition(Lock())
 
 # INPUT:
 #    -ticker(str); ticker symbol to update
@@ -124,7 +123,6 @@ def abort(ticker : str) -> None:
         rm(ticker)
 
 
-
 # INPUT: None
 # OUTPUT: None
 # PRECONDITION: None
@@ -155,15 +153,15 @@ def run():
         fetched_info = {}
         def fetch_info():
             nonlocal fetched_info
-            if stale_quotes:
-                try:
+            try:
 
-                    fetched_info = eapi.get_stock_info(stale_quotes)
+                fetched_info = eapi.get_stock_info(stale_quotes)
 
-                except FetchingError as e:
-                    with cache_lock:
-                        abort(e.ticker)
-                        cache_lock.notify_all()
+            except FetchingError as e:
+                with cache_lock:
+                    abort(e.ticker)
+                    cache_lock.notify_all()
+
         t1 = threading.Thread(target = fetch_info)
         t1.start()
 
@@ -171,8 +169,7 @@ def run():
         fetched_prices = {}
         def fetch_prices():
             nonlocal fetched_prices
-            if active_stocks:
-                fetched_prices = eapi.get_stock_prices(active_stocks)
+            fetched_prices = eapi.get_stock_prices(active_stocks)
 
         t2 = threading.Thread(target = fetch_prices)
         t2.start()
@@ -257,7 +254,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_sector()
     @staticmethod
-    def get_sector(ticker : str):
+    def get_sector(ticker : str) -> str:
         try:
 
             if persistent_cache[ticker]["sector"] is None:
@@ -275,11 +272,12 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_stock_info()
     @staticmethod
-    def get_stock_info(ticker : str):
+    def get_stock_info(ticker : str) -> dict[str, dict]:
         with cache_lock:
             touch([ticker])
             cache_lock.wait_for(lambda: read(ticker, "quote") is not None)
             stock_info = read(ticker, "quote")
+
         return stock_info
 
 

@@ -47,7 +47,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails
     @staticmethod
-    def get_float(ticker : str) -> int:
+    def get_float(ticker : str) -> float:
 
         try:
 
@@ -62,7 +62,7 @@ class ExternalApi:
 
 
     # INPUT:
-    #   -tickers(list[str]); a list of stock ticker symbols
+    #   -tickers(set[str]); a list of stock ticker symbols
     # OUTPUT:
     #   -ticker_package(dict[str,float]); live stock prices for all tickers in list
     # PRECONDITION:
@@ -72,7 +72,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails at any point
     @staticmethod
-    def get_stock_prices(tickers : list[str]) -> dict[str, float]:
+    def get_stock_prices(tickers : set[str]) -> dict[str, float]:
 
         ticker_package = {}
 
@@ -101,13 +101,13 @@ class ExternalApi:
 
 
     # INPUT:
-    #   -tickers(list[str]); stock ticker symbols
+    #   -tickers(set[str]); stock ticker symbols
     # OUTPUT:
     #   -stock_info(dict[str,dict]); market data snapshot for tickers
     # PRECONDITION:
-    #   -tickers; exist in open market with at least 1 day of price history
+    #   -tickers; exist in open market with at least 1 day of price history, or empty/None
     # POSTCONDITION:
-    #   -stock_info; contains the following keys:
+    #   -stock_info; contains the following keys or is empty:
     #       -price(float); current market price
     #       -change(float); percent change from previous close, rounded to 2 decimal places
     #       -positive(bool); True if change >= 0, False otherwise
@@ -123,7 +123,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails or ticker has no price history
     @staticmethod
-    def get_stock_info(tickers : list[str]) -> dict[str, dict]:
+    def get_stock_info(tickers : set[str]) -> dict[str, dict]:
         
         stock_info = {}
 
@@ -135,11 +135,11 @@ class ExternalApi:
             return int(val) if not pd.isna(val) else None
 
         try:
-            
-            ticker_dat = yf.Tickers(" ".join(tickers))
-            hist_all = yf.download(tickers, period="5d", interval="1d", auto_adjust=True, progress=False)
-            hist_all.columns = hist_all.columns.swaplevel('Ticker', 'Price')
-            hist_all = hist_all.sort_index(axis=1)
+            if tickers:
+                ticker_dat = yf.Tickers(" ".join(tickers))
+                hist_all = yf.download(tickers, period="5d", interval="1d", auto_adjust=True, progress=False)
+                hist_all.columns = hist_all.columns.swaplevel('Ticker', 'Price')
+                hist_all = hist_all.sort_index(axis=1)
             
             for ticker in tickers:
                 fi = ticker_dat.tickers[ticker].fast_info
