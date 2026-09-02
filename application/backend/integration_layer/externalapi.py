@@ -103,11 +103,11 @@ class ExternalApi:
     # INPUT:
     #   -tickers(set[str]); stock ticker symbols
     # OUTPUT:
-    #   -stock_info(dict[str,dict]); market data snapshot for tickers
+    #   -stock_quotes(dict[str,dict]); market data snapshot for tickers
     # PRECONDITION:
     #   -tickers; exist in open market with at least 1 day of price history, or empty/None
     # POSTCONDITION:
-    #   -stock_info; contains the following keys or is empty:
+    #   -stock_quotes; contains the following keys or is empty:
     #       -price(float); current market price
     #       -change(float); percent change from previous close, rounded to 2 decimal places
     #       -positive(bool); True if change >= 0, False otherwise
@@ -123,9 +123,9 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails or ticker has no price history
     @staticmethod
-    def get_stock_info(tickers : set[str]) -> dict[str, dict]:
+    def get_stock_quotes(tickers : set[str]) -> dict[str, dict]:
         
-        stock_info = {}
+        stock_quotes = {}
 
         ticker = None
 
@@ -163,7 +163,7 @@ class ExternalApi:
                 year_high = fi.year_high
                 year_low = fi.year_low
 
-                stock_info[ticker] = {
+                stock_quotes[ticker] = {
                     "price": price,
                     "change": change,
                     "positive": positive,
@@ -179,9 +179,9 @@ class ExternalApi:
                 }
 
         except Exception as e:
-            raise FetchingError(f"get_stock_info failed {e}", ticker) from e
+            raise FetchingError(f"get_stock_quotes failed {e}", ticker) from e
 
-        return stock_info
+        return stock_quotes
 
 
     # INPUT:

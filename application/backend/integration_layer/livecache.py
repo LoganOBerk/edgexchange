@@ -1,7 +1,7 @@
 import time
 import threading
 
-from threading import Lock, Condition
+from threading import Lock, Condition, Thread
 from collections import defaultdict
 from datetime import date
 
@@ -23,11 +23,14 @@ cache_lock = Condition(Lock())
 # OUTPUT: None
 # PRECONDITION: None
 # POSTCONDITION:
-#    -cache; quote["price"] updated to price for ticker if quote exists
+#    -cache; quote["price"] updated to price for ticker if quote and price exist
 # RAISES: None
 def sync_price(ticker : str) -> None:
+    if read(ticker, "price") is None:
+        cache[ticker]["price"] = read(ticker, "quote")["price"]
     if read(ticker, "quote") is not None:
         cache[ticker]["quote"]["price"] = read(ticker, "price")
+    
 
 
 # INPUT:
@@ -134,9 +137,9 @@ def abort(ticker : str) -> None:
 # RAISES: None
 def stock_needs_refresh(ticker : str) -> bool:
     stock_is_empty = read(ticker, "price") is None
-    stock_is_expired = stock_is_empty or read(ticker, "last_accessed") >= time.time() - selfexp(PRICE_REFRESH_INTERVAL)
+    stock_is_active = stock_is_empty or read(ticker, "last_accessed") >= time.time() - selfexp(PRICE_REFRESH_INTERVAL)
 
-    needs_refresh = stock_is_expired
+    needs_refresh = stock_is_active
 
     return needs_refresh
 
@@ -159,6 +162,66 @@ def quote_needs_refresh(ticker : str) -> bool:
 
     return needs_refresh
 
+# INPUT: None
+# OUTPUT: None
+# PRECONDITION:
+#   -cache; cached price is always reflecting the quoted price
+# POSTCONDITION:
+#   -cache; pending quotes are all fetched and written to the cache 
+#   -cache_lock; notifies all waiters of quote changes
+# RAISES: None
+def info_runner():
+    fetched_quotes = {}
+    pending_quotes = set()
+    with cache_lock:
+        for ticker in cache.keys():
+            if quote_needs_refresh(ticker):
+                pending_quotes.add(ticker)
+
+    try:
+
+        fetched_quotes = eapi.get_stock_quotes(pending_quotes)
+
+    except FetchingError as e:
+        with cache_lock:
+            abort(e.ticker)
+
+            
+    with cache_lock:
+        for ticker, quote in fetched_quotes.items():
+            write_quote(ticker, quote)
+        cache_lock.notify_all()
+
+
+# INPUT: None
+# OUTPUT: None
+# PRECONDITION:
+#   -cache; quoted price is always reflecting the cached price
+# POSTCONDITION:
+#   -cache; pending stocks are all fetched and written to the cache
+#   -cache_lock; notifies all waiters of price changes
+# RAISES: None
+def price_runner():
+    fetched_prices = {}
+    pending_stocks = set()
+    with cache_lock:
+        for ticker in cache.keys():
+            if stock_needs_refresh(ticker):
+                pending_stocks.add(ticker)
+
+    try:
+    
+        fetched_prices = eapi.get_stock_prices(pending_stocks)
+    
+    except FetchingError:
+        pass
+    
+
+    with cache_lock:
+        for ticker, price in fetched_prices.items():
+            write_price(ticker, price)
+        cache_lock.notify_all()
+
 
 # INPUT: None
 # OUTPUT: None
@@ -173,64 +236,21 @@ def run():
         latency = 0
         start = time.time()
         
-        pending_stocks = set()
-        pending_quotes = set()
+        t1 = Thread(target = price_runner)
+        t2 = Thread(target = info_runner)
 
-        with cache_lock:
-            for ticker in cache.keys():
-                
-                if stock_needs_refresh(ticker):
-                    pending_stocks.add(ticker)
-
-                if quote_needs_refresh(ticker):
-                    pending_quotes.add(ticker)
-
-
-        fetched_info = {}
-        def fetch_info():
-            nonlocal fetched_info
-            try:
-
-                fetched_info = eapi.get_stock_info(pending_quotes)
-
-            except FetchingError as e:
-                with cache_lock:
-                    abort(e.ticker)
-                    cache_lock.notify_all()
-
-        t1 = threading.Thread(target = fetch_info)
         t1.start()
-
-
-        fetched_prices = {}
-        def fetch_prices():
-            nonlocal fetched_prices
-            fetched_prices = eapi.get_stock_prices(pending_stocks)
-
-        t2 = threading.Thread(target = fetch_prices)
         t2.start()
 
         t1.join()
         t2.join()
 
-
-        with cache_lock:
-            for ticker, quote in fetched_info.items():
-                write_quote(ticker, quote)
-                
-            for ticker, price in fetched_prices.items():
-                write_price(ticker, price)
-                    
-            cache_lock.notify_all()
-            
-        
         end = time.time()
         latency = end - start
         
         time.sleep(max(0, PRICE_REFRESH_INTERVAL - latency))
 
-threading.Thread(target = run, daemon = True).start()
-
+Thread(target = run, daemon = True).start()
 
 
 # PURPOSE:
@@ -306,17 +326,17 @@ class LiveCache:
         return sector
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_stock_info()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_stock_quotes()
     # RAISES: 
-    #   -LiveCacheError; propagated from ExternalApi.get_stock_info()
+    #   -LiveCacheError; propagated from ExternalApi.get_stock_quotes()
     @staticmethod
-    def get_stock_info(ticker : str) -> dict[str, dict]:
+    def get_stock_quote(ticker : str) -> dict[str, dict]:
         with cache_lock:
             touch([ticker])
             cache_lock.wait_for(lambda: read(ticker, "quote") is not None)
-            stock_info = read(ticker, "quote")
+            stock_quote = read(ticker, "quote")
 
-        return stock_info
+        return stock_quote
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_stock_prices()
