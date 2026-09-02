@@ -1,10 +1,9 @@
 import time
-import threading
 
+from concurrent.futures import ThreadPoolExecutor, wait
 from threading import Lock, Condition, Thread
 from collections import defaultdict
 from datetime import date
-
 
 from common.errors import FetchingError, LiveCacheError
 from common.constants import PRICE_REFRESH_INTERVAL, selfexp
@@ -162,6 +161,7 @@ def quote_needs_refresh(ticker : str) -> bool:
 
     return needs_refresh
 
+
 # INPUT: None
 # OUTPUT: None
 # PRECONDITION:
@@ -170,7 +170,7 @@ def quote_needs_refresh(ticker : str) -> bool:
 #   -cache; pending quotes are all fetched and written to the cache 
 #   -cache_lock; notifies all waiters of quote changes
 # RAISES: None
-def info_runner():
+def quote_runner():
     fetched_quotes = {}
     pending_quotes = set()
     with cache_lock:
@@ -232,18 +232,15 @@ def price_runner():
 #    -cache_lock; all waiters are notified on cache changes, failed quote either results in longer wait time or stale quote
 # RAISES: None
 def run():
+    pool = ThreadPoolExecutor(max_workers = 2)
+
     while True:
-        latency = 0
         start = time.time()
         
-        t1 = Thread(target = price_runner)
-        t2 = Thread(target = info_runner)
+        runner1 = pool.submit(price_runner)
+        runner2 = pool.submit(quote_runner)
 
-        t1.start()
-        t2.start()
-
-        t1.join()
-        t2.join()
+        wait([runner1, runner2])
 
         end = time.time()
         latency = end - start
