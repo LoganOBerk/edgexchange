@@ -1,11 +1,16 @@
 import logging
 import pandas as pd
 from math import inf
+from requests import Session
 
 import yfinance as yf
 from common.errors import FetchingError
 
 logging.getLogger("yfinance").setLevel(logging.CRITICAL)
+
+
+yf.data.YfData._session = Session()
+
 
 # PURPOSE:
 #   -ExternalApi provides a external finance fetching abstraction
