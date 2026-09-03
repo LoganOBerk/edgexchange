@@ -108,7 +108,7 @@ def touch(tickers : list[str]) -> None:
 # POSTCONDITION:
 #    -cache; ticker and all associated data removed
 # RAISES: None
-def rm(ticker : str) -> None:
+def remove(ticker : str) -> None:
     del cache[ticker]
 
 
@@ -122,7 +122,7 @@ def rm(ticker : str) -> None:
 # RAISES: None
 def abort(ticker : str) -> None:
     if ticker and read(ticker, "quote") is None:
-        rm(ticker)
+        remove(ticker)
 
 
 # INPUT:

@@ -30,7 +30,11 @@ class App:
     #	-frontend=False; self.vis is Visualizer; self.display is Cli with serv, san, val, vis injection
     # RAISES: None
     def init(self, testing : bool, frontend : bool) -> None:
-        db_source = env.get_database_test_source() if testing else env.get_database_source()
+
+        if testing:
+            db_source = env.get_database_test_source()
+        else:
+            db_source = env.get_database_source()
 
         self.san = Sanitizer()
         self.db = Database(db_source)
