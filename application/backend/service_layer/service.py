@@ -14,8 +14,66 @@ from integration_layer import LiveCache as lcac
 class Service:
     def __init__(self, database):
         self.db = database
-    
 
+    
+    # INPUT:
+    #   -login(str); user login
+    # OUTPUT:
+    #   -user_dat(tuple); user id, login, password, balance
+    # PRECONDITION: None
+    # POSTCONDITION:
+    #   -user_dat; user information provided if login exists in database, None otherwise
+    # RAISES:
+    #   -ServiceError; database call fails
+    def identify_user(self, login : str) -> int:
+        try:
+
+            user_dat = self.db.pull_user(login)
+
+        except DatabaseError as e:
+            raise ServiceError("Failed to match credentials") from e
+
+        return user_dat
+
+
+    # INPUT:
+    #   -login(str); user login
+    # OUTPUT:
+    #   -user_password(str | None); stored password for given login
+    # PRECONDITION: None
+    # POSTCONDITION:
+    #   -user_password; user password provided if login exists in database, None otherwise
+    # RAISES:
+    #   -ServiceError; propagated from identify_user()
+    def resolve_password(self, login : str) -> str | None:
+        user_password = None
+        user_dat = self.identify_user(login)
+
+        if user_dat is not None:
+            user_password = user_dat[2]
+            
+        return user_password
+    
+    
+    # INPUT:
+    #   -login(str); user login
+    # OUTPUT:
+    #   -u_id(int | None); stored user id for given login
+    # PRECONDITION: None
+    # POSTCONDITION:
+    #   -u_id; user id provided if login exists in database, None otherwise
+    # RAISES:
+    #   -ServiceError; propagated from identify_user()
+    def resolve_uid(self, login : str) -> int | None:
+        u_id = None
+        user_dat = self.identify_user(login)
+
+        if user_dat is not None:
+            u_id = user_dat[0]
+            
+        return u_id
+
+    
     # INPUT: 
     #   -credentials(tuple[str,str]); user login and password
     # OUTPUT: None
@@ -217,64 +275,6 @@ class Service:
         portfolio.sell_shares(shares_request)
 
 
-    # INPUT:
-    #   -login(str); user login
-    # OUTPUT:
-    #   -user_dat(tuple); user id, login, password, balance
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -user_dat; user information provided if login exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; database call fails
-    def identify_user(self, login : str) -> int:
-        try:
-
-            user_dat = self.db.pull_user(login)
-
-        except DatabaseError as e:
-            raise ServiceError("Failed to match credentials") from e
-
-        return user_dat
-
-
-    # INPUT:
-    #   -login(str); user login
-    # OUTPUT:
-    #   -user_password(str | None); stored password for given login
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -user_password; user password provided if login exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; propagated from identify_user()
-    def resolve_password(self, login : str) -> str | None:
-        user_password = None
-        user_dat = self.identify_user(login)
-
-        if user_dat is not None:
-            user_password = user_dat[2]
-           
-        return user_password
-
-
-    # INPUT:
-    #   -login(str); user login
-    # OUTPUT:
-    #   -u_id(int | None); stored user id for given login
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -u_id; user id provided if login exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; propagated from identify_user()
-    def resolve_uid(self, login : str) -> int | None:
-        u_id = None
-        user_dat = self.identify_user(login)
-
-        if user_dat is not None:
-            u_id = user_dat[0]
-            
-        return u_id
-
-
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.get_stock_quote()
     # RAISES: 
     #   -ServiceError; propagated from LiveCache.get_stock_quote()
@@ -358,6 +358,24 @@ class Service:
 
 
     # INPUT:
+    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
+    # OUTPUT:
+    #   -portfolio_assignments(dict[int, list[tuple]]); list of stock data keyed to specific portfolio id
+    # PRECONDITION:
+    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
+    # POSTCONDITION:
+    #   -portfolio_assignments; each portfolio id maps to its list of stock tuples
+    # RAISES: None
+    def assign_portfolio_allocations(self, stored_stocks : list[tuple]) -> dict[int, list[tuple]]:
+        portfolio_assignments = defaultdict(list)
+        for stock in stored_stocks:
+            p_id = stock[0]
+            portfolio_assignments[p_id].append(stock[1:])
+
+        return portfolio_assignments
+
+
+    # INPUT:
     #   -user_account(User); current user account
     #   -login(str); user login
     # OUTPUT: None
@@ -376,24 +394,6 @@ class Service:
 
         self.populate_user_portfolios(user_account.portfolios, stored_portfolios, stored_stocks)
         
-
-    # INPUT:
-    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
-    # OUTPUT:
-    #   -portfolio_assignments(dict[int, list[tuple]]); list of stock data keyed to specific portfolio id
-    # PRECONDITION:
-    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
-    # POSTCONDITION:
-    #   -portfolio_assignments; each portfolio id maps to its list of stock tuples
-    # RAISES: None
-    def assign_portfolio_allocations(self, stored_stocks : list[tuple]) -> dict[int, list[tuple]]:
-        portfolio_assignments = defaultdict(list)
-        for stock in stored_stocks:
-            p_id = stock[0]
-            portfolio_assignments[p_id].append(stock[1:])
-
-        return portfolio_assignments
-
 
     # INPUT:
     #   -user_portfolios(dict[str,Portfolio]); user portfolios keyed by portfolio name
