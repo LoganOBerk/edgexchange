@@ -12,7 +12,7 @@ class LogoutRequest(BaseModel):
 #   -CredsRequest provides a deserializable abstraction for credentials
 #   -defines the expected JSON body shape for the /register and /login endpoints
 class CredsRequest(BaseModel):
-    login: str
+    username: str
     password: str
 
 
@@ -84,7 +84,7 @@ class PortfolioData(BaseModel):
 #   -UserData provides a serializable abstraction for a User object
 #   -defines the JSON response body for a User
 class UserData(BaseModel):
-    login: str
+    username: str
     balance: float
     portfolios: dict[str, PortfolioData]
 
@@ -106,6 +106,6 @@ class UserData(BaseModel):
         for name, portfolio in user.portfolios.items():
             portfolios[name] = PortfolioData.convert(portfolio)
         
-        user_data = cls(login = user.login, balance = user.balance, portfolios = portfolios)
+        user_data = cls(username = user.username, balance = user.balance, portfolios = portfolios)
 
         return user_data

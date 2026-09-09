@@ -17,8 +17,8 @@ async function req(endpoint, options = {}) {
 
 const post = (url, body) => req(url, { method: "POST", body: JSON.stringify(body) });
 
-export const registerUser = (login, password) => post("/register", { login, password });
-export const loginUser = (login, password) => post("/login", { login, password });
+export const registerUser = (username, password) => post("/register", { username, password });
+export const loginUser = (username, password) => post("/login", { username, password });
 export const logoutUser = (session_id) => post("/logout", { session_id });
 export const getUser = (session_id) => req(`/user?session_id=${session_id}`);
 export const fundAccount = (session_id, funds_requested) => post("/fund", { session_id, funds_requested });

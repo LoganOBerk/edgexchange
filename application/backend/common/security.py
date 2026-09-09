@@ -1,10 +1,10 @@
 import bcrypt
 
 # INPUT: 
-#   -credentials(tuple[str,str]); user login and password
+#   -credentials(tuple[str,str]); user username and password
 # OUTPUT: None
 # PRECONDITION:
-#   -credentials; login and password are non-empty strings, see Validator.account_validator() POSTCONDITION
+#   -credentials; username and password are non-empty strings, see Validator.account_validator() POSTCONDITION
 # POSTCONDITION: 
 #   -credentials; password is properly hashed and repacked into credentials with the hashed string replacement
 # RAISES: None

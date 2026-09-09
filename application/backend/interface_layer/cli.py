@@ -69,11 +69,11 @@ class Cli:
     # RAISES: None  
     def display_account_credential_gatherer(self, new : bool) -> None:
         print(f"---------------{'SIGNUP' if new else 'LOGIN'}---------------")
-        login = input('Enter your login: ')
+        username = input('Enter your username: ')
         password = input('Enter your password: ')
         print(f"---------------{'------' if new else '-----'}---------------\n")
 
-        creds = login, password
+        creds = username, password
         creds = self.san.sanitize_credentials(creds)
 
         result = self.validator.account_validator(creds, new)
@@ -97,7 +97,7 @@ class Cli:
                     if new:
                         self.user_account = self.serv.create_account(creds)
                     else:
-                        self.user_account = self.serv.find_account(login)
+                        self.user_account = self.serv.find_account(username)
 
                     print(result.reason)    
 
@@ -125,7 +125,7 @@ class Cli:
             num_portfolios = len(user_account.portfolios)
             portfolio_list = list(user_account.portfolios.values())
             print("-------------------DASHBOARD---------------------")
-            print(f"Hello, {user_account.login}")
+            print(f"Hello, {user_account.username}")
             print(f"Current Balance: ${user_account.balance:,.2f}\n")
 
             for i in range(num_portfolios):

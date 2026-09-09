@@ -4,17 +4,17 @@
 class Sanitizer:
     
     # INPUT:
-    #   -login(str); raw user login input
+    #   -username(str); raw user username input
     # OUTPUT:
-    #   -login(str); sanitized user login
+    #   -username(str); sanitized user username
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -login; login is sanitized from basic malformed input
+    #   -username; username is sanitized from basic malformed input
     # RAISES: None
     @staticmethod
-    def sanitize_login(login : str) -> str:
-        login = login.strip()
-        return login
+    def sanitize_username(username : str) -> str:
+        username = username.strip()
+        return username
 
 
     # INPUT:
@@ -31,16 +31,16 @@ class Sanitizer:
 
 
     # INPUT:
-    #   -credentials(tuple[str,str]); a user login and password
+    #   -credentials(tuple[str,str]); a user username and password
     # OUTPUT:
-    #   -credentials(tuple[str,str]); sanitized user login and password
+    #   -credentials(tuple[str,str]); sanitized user username and password
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -credentials; see Sanitizer.sanitize_login() & Sanitizer.sanitize_password() POSTCONDITIONS
+    #   -credentials; see Sanitizer.sanitize_username() & Sanitizer.sanitize_password() POSTCONDITIONS
     # RAISES: None
     @staticmethod
     def sanitize_credentials(credentials : tuple[str, str]) -> tuple[str, str]:
-        credentials = Sanitizer.sanitize_login(credentials[0]), Sanitizer.sanitize_password(credentials[1])
+        credentials = Sanitizer.sanitize_username(credentials[0]), Sanitizer.sanitize_password(credentials[1])
         return credentials
 
 

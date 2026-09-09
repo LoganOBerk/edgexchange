@@ -29,7 +29,7 @@ class Database:
         create_user_table = '''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
-                login TEXT UNIQUE COLLATE NOCASE NOT NULL,
+                username TEXT UNIQUE COLLATE NOCASE NOT NULL,
                 password TEXT NOT NULL,
                 balance REAL NOT NULL DEFAULT 0
             );
@@ -71,27 +71,27 @@ class Database:
 
 
     # INPUT:
-    #   -login(str); user login 
+    #   -username(str); user username 
     # OUTPUT:
-    #   -user_data(tuple[int,str,str,float] | None); id, login, password, balance
+    #   -user_data(tuple[int,str,str,float] | None); id, username, password, balance
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -user_data; row matching login retrieved if exists, None otherwise
+    #   -user_data; row matching username retrieved if exists, None otherwise
     # RAISES:
     #   -DatabaseError; SqliteError occurs during selection 
-    def pull_user(self, login : str) -> tuple[int, str, float] | None:
+    def pull_user(self, username : str) -> tuple[int, str, float] | None:
 
         cursor = self.conn.cursor()
 
         pull_user = '''
-            SELECT id, login, password, balance
+            SELECT id, username, password, balance
             FROM users
-            WHERE login = ?
+            WHERE username = ?
         '''
 
         try:
 
-            cursor.execute(pull_user, (login,))
+            cursor.execute(pull_user, (username,))
 
         except SqliteError as e:
             raise DatabaseError(f"pull_user failed: {e}") from e
@@ -165,13 +165,13 @@ class Database:
 
 
     # INPUT:
-    #   -credentials(tuple[str,str]); new user login and password
+    #   -credentials(tuple[str,str]); new user username and password
     # OUTPUT:
     #   -u_id(int); the database primary key for the new user
     # PRECONDITION:
     #   -credentials; see Validator.account_validator() POSTCONDITION
     # POSTCONDITION:
-    #   -database; new user row inserted with login and password
+    #   -database; new user row inserted with username and password
     #   -u_id; primary key of the inserted user row
     # RAISES:
     #   -DatabaseError; SqliteError occurs on insert
@@ -179,7 +179,7 @@ class Database:
         cursor = self.conn.cursor()
 
         insert_user = '''
-            INSERT INTO users (login, password)
+            INSERT INTO users (username, password)
             VALUES (?, ?)
         '''
 

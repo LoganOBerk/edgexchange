@@ -99,7 +99,7 @@ def find_sessions_user(session_id : str):
 @router.post("/register", status_code = 201)
 def register(req : CredsRequest) -> dict[str, str]:
 
-    creds = (req.login, req.password)
+    creds = (req.username, req.password)
 
     try:
     
@@ -133,10 +133,10 @@ def register(req : CredsRequest) -> dict[str, str]:
 @router.post("/login", status_code = 200)
 def login(req : CredsRequest) -> dict[str, str | UserData]:
 
-    creds = (req.login, req.password)
+    creds = (req.username, req.password)
 
     try:
-        u_id = frontend_api.resolve_uid(req.login)
+        u_id = frontend_api.resolve_uid(req.username)
         user = active_users.get(u_id)
 
         if user is None:

@@ -17,18 +17,18 @@ class Service:
 
     
     # INPUT:
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT:
-    #   -user_dat(tuple); user id, login, password, balance
+    #   -user_dat(tuple); user id, username, password, balance
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -user_dat; user information provided if login exists in database, None otherwise
+    #   -user_dat; user information provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; database call fails
-    def identify_user(self, login : str) -> int:
+    def identify_user(self, username : str) -> int:
         try:
 
-            user_dat = self.db.pull_user(login)
+            user_dat = self.db.pull_user(username)
 
         except DatabaseError as e:
             raise ServiceError("Failed to match credentials") from e
@@ -37,17 +37,17 @@ class Service:
 
 
     # INPUT:
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT:
-    #   -user_password(str | None); stored password for given login
+    #   -user_password(str | None); stored password for given username
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -user_password; user password provided if login exists in database, None otherwise
+    #   -user_password; user password provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; propagated from identify_user()
-    def resolve_password(self, login : str) -> str | None:
+    def resolve_password(self, username : str) -> str | None:
         user_password = None
-        user_dat = self.identify_user(login)
+        user_dat = self.identify_user(username)
 
         if user_dat is not None:
             user_password = user_dat[2]
@@ -56,17 +56,17 @@ class Service:
     
     
     # INPUT:
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT:
-    #   -u_id(int | None); stored user id for given login
+    #   -u_id(int | None); stored user id for given username
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -u_id; user id provided if login exists in database, None otherwise
+    #   -u_id; user id provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; propagated from identify_user()
-    def resolve_uid(self, login : str) -> int | None:
+    def resolve_uid(self, username : str) -> int | None:
         u_id = None
-        user_dat = self.identify_user(login)
+        user_dat = self.identify_user(username)
 
         if user_dat is not None:
             u_id = user_dat[0]
@@ -75,10 +75,10 @@ class Service:
 
     
     # INPUT: 
-    #   -credentials(tuple[str,str]); user login and password
+    #   -credentials(tuple[str,str]); user username and password
     # OUTPUT: None
     # PRECONDITION:
-    #   -credentials; login and password are non-empty strings, see Validator.account_validator() POSTCONDITION
+    #   -credentials; username and password are non-empty strings, see Validator.account_validator() POSTCONDITION
     # POSTCONDITION: 
     #   -database; see Database.insert_user() POSTCONDITION
     # RAISES: 
@@ -95,21 +95,21 @@ class Service:
 
 
     # INPUT:
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT:
-    #   -user(User); populated account for the given login
+    #   -user(User); populated account for the given username
     # PRECONDITION:
-    #   -login; a user with this login exists in the database
+    #   -username; a user with this username exists in the database
     # POSTCONDITION: 
-    #   -user; populated with id, login, balance and all portfolios and respective stocks
+    #   -user; populated with id, username, balance and all portfolios and respective stocks
     # RAISES:
     #   -ServiceError; database call fails
-    def find_account(self, login : str) -> User:
+    def find_account(self, username : str) -> User:
         user = User()
 
         try:
 
-            self.populate_user_account(user, login)
+            self.populate_user_account(user, username)
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
@@ -337,20 +337,20 @@ class Service:
 
 
     # INPUT:
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT:
-    #   -stored_user(tuple); user id, login, balance
+    #   -stored_user(tuple); user id, username, balance
     #   -stored_portfolios(list[tuple]); all user portfolios listed as portfolio id, name
     #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
     # PRECONDITION:
-    #   -login; a user with this login exists in the database
+    #   -username; a user with this username exists in the database
     # POSTCONDITION:
     #   -stored_user; see Database.pull_user() POSTCONDITION
     #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
     #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
     # RAISES: None
-    def retrieve_stored_data(self, login : str) -> tuple[tuple, list[tuple], list[tuple]]:
-        stored_user = self.db.pull_user(login)
+    def retrieve_stored_data(self, username : str) -> tuple[tuple, list[tuple], list[tuple]]:
+        stored_user = self.db.pull_user(username)
         stored_portfolios = self.db.pull_portfolios(stored_user[0])
         stored_stocks = self.db.pull_stocks(stored_user[0])
 
@@ -377,19 +377,19 @@ class Service:
 
     # INPUT:
     #   -user_account(User); current user account
-    #   -login(str); user login
+    #   -username(str); user username
     # OUTPUT: None
     # PRECONDITION:
     #   -user_account; is empty
-    #   -login; a user with this login exists in the database
+    #   -username; a user with this username exists in the database
     # POSTCONDITION:
-    #   -user_account; populated with id, login, balance, all portfolios and their stocks from database
+    #   -user_account; populated with id, username, balance, all portfolios and their stocks from database
     # RAISES: None
-    def populate_user_account(self, user_account : User, login : str) -> None:
-        stored_user, stored_portfolios, stored_stocks = self.retrieve_stored_data(login)
+    def populate_user_account(self, user_account : User, username : str) -> None:
+        stored_user, stored_portfolios, stored_stocks = self.retrieve_stored_data(username)
 
         user_account.id = stored_user[0]
-        user_account.login = stored_user[1]
+        user_account.username = stored_user[1]
         user_account.balance = stored_user[3]
 
         self.populate_user_portfolios(user_account.portfolios, stored_portfolios, stored_stocks)

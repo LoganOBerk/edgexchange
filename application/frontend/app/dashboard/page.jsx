@@ -207,7 +207,7 @@ export default function Dashboard() {
             <div className="space-y-6 sm:space-y-8">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Dashboard</h1>
-                    <p className="text-muted-foreground">Hello, {user?.login ?? "User"}</p>
+                    <p className="text-muted-foreground">Hello, {user?.username ?? "User"}</p>
                 </div>
 
                 <div className="card-surface flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">

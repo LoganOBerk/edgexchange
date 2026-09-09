@@ -23,9 +23,9 @@ class FrontendApi:
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.resolve_uid() fields
-    def resolve_uid(self, login):
-        login = self.san.sanitize_login(login)
-        u_id = self.serv.resolve_uid(login)
+    def resolve_uid(self, username):
+        username = self.san.sanitize_username(username)
+        u_id = self.serv.resolve_uid(username)
         return u_id 
 
 
@@ -43,7 +43,7 @@ class FrontendApi:
 
 
     # INPUT:
-    #   -credentials(tuple[str,str]); user login and password
+    #   -credentials(tuple[str,str]); user username and password
     # OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.find_account() fields
     # RAISES:
     #   -ValidationError; see Validator.account_validator() POSTCONDITION (new=False)
@@ -54,9 +54,9 @@ class FrontendApi:
         if not result.valid:
             raise ValidationError(result.reason)
 
-        login = credentials[0]
+        username = credentials[0]
 
-        return self.serv.find_account(login)
+        return self.serv.find_account(username)
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.fund_account() fields

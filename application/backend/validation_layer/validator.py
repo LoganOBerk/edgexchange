@@ -22,7 +22,7 @@ class Validator:
 
     
     # INPUT:
-    #   -credentials(tuple[str,str]); user login and password
+    #   -credentials(tuple[str,str]); user username and password
     #   -new(bool); True if creating a new account, False if logging in
     # OUTPUT:
     #   -return(Result); account validation result True or False with description
@@ -33,18 +33,18 @@ class Validator:
     # RAISES: None
     def account_validator(self, credentials : tuple[str, str], new : bool) -> Result:
 
-        login, password = credentials
+        username, password = credentials
         
-        if login == '' and password != '' and not password.isspace():
+        if username == '' and password != '' and not password.isspace():
             return Result(False, "No username entered.\n")
 
-        if login != '' and (password == '' or password.isspace()):
+        if username != '' and (password == '' or password.isspace()):
             return Result(False, "No password entered.\n")
 
-        if login == '' and (password == '' or password.isspace()):
+        if username == '' and (password == '' or password.isspace()):
             return Result(False, "No credentials entered.\n")
         
-        stored_password = self.serv.resolve_password(login)
+        stored_password = self.serv.resolve_password(username)
         account_exists = stored_password is not None
 
         if new and account_exists:
@@ -60,9 +60,9 @@ class Validator:
             return Result(False, "No account exists with entered username.\n")
 
         if new:
-            return Result(True, f"{login} has successfully created a new account.\n")
+            return Result(True, f"{username} has successfully created a new account.\n")
         else:
-            return Result(True, f"{login} has successfully logged in.\n")
+            return Result(True, f"{username} has successfully logged in.\n")
 
 
 

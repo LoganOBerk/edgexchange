@@ -108,8 +108,8 @@ export function SessionProvider({ children }) {
         setSessionCookie(id);
     };
 
-    const login = async (login, password) => {
-        const data = await loginUser(login, password);
+    const login = async (username, password) => {
+        const data = await loginUser(username, password);
         persistUser(data.session_id, data.user);
         return data;
     };
@@ -128,8 +128,8 @@ export function SessionProvider({ children }) {
         router.push("/login");
     };
 
-    const register = async (login, password) => {
-        await registerUser(login, password);
+    const register = async (username, password) => {
+        await registerUser(username, password);
         router.push("/login");
     };
 
