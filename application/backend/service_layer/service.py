@@ -1,10 +1,8 @@
-from importlib.resources import Package
 import sys
-from collections import defaultdict
 
 from common.errors import DatabaseError, LiveCacheError, ServiceError
 from common.security import secure_creds
-from domain_models import User, Portfolio, Stock
+from domain_models import User, Portfolio, hydrate_account
 from integration_layer import LiveCache as lcac
 
 
@@ -73,7 +71,49 @@ class Service:
             
         return u_id
 
-    
+
+    # INPUT:
+    #   -username(str); user username
+    # OUTPUT:
+    #   -stored_user(tuple); user id, username, balance
+    #   -stored_portfolios(list[tuple]); all user portfolios listed as portfolio id, name
+    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
+    # PRECONDITION:
+    #   -username; a user with this username exists in the database
+    # POSTCONDITION:
+    #   -stored_user; see Database.pull_user() POSTCONDITION
+    #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
+    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
+    # RAISES: None
+    def retrieve_account_data(self, username : str) -> tuple[tuple, list[tuple], list[tuple]]:
+        stored_user = self.db.pull_user(username)
+        stored_portfolios = self.db.pull_portfolios(stored_user[0])
+        stored_stocks = self.db.pull_stocks(stored_user[0])
+
+        return stored_user, stored_portfolios, stored_stocks
+
+
+    # INPUT:
+    #   -username(str); user username
+    # OUTPUT:
+    #   -user(User); populated account for the given username
+    # PRECONDITION:
+    #   -username; a user with this username exists in the database
+    # POSTCONDITION: 
+    #   -user; populated with id, username, balance and all portfolios and respective stocks
+    # RAISES:
+    #   -ServiceError; database call fails
+    def find_account(self, username : str) -> User:
+        try:
+
+            user = hydrate_account(self.retrieve_account_data(username))
+
+        except DatabaseError as e:
+            raise ServiceError("Failed to find account") from e
+
+        return user
+
+
     # INPUT: 
     #   -credentials(tuple[str,str]); user username and password
     # OUTPUT: None
@@ -92,31 +132,8 @@ class Service:
 
         except DatabaseError as e:
             raise ServiceError("Failed to create account") from e
-
-
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -user(User); populated account for the given username
-    # PRECONDITION:
-    #   -username; a user with this username exists in the database
-    # POSTCONDITION: 
-    #   -user; populated with id, username, balance and all portfolios and respective stocks
-    # RAISES:
-    #   -ServiceError; database call fails
-    def find_account(self, username : str) -> User:
-        user = User()
-
-        try:
-
-            self.populate_user_account(user, username)
-
-        except DatabaseError as e:
-            raise ServiceError("Failed to find account") from e
-
-        return user
-
-
+    
+    
     # INPUT:
     #   -user_account(User); current user account
     #   -funds_request(float); amount of money to add to balance 
@@ -335,112 +352,7 @@ class Service:
 
         return packaged_data
 
-
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -stored_user(tuple); user id, username, balance
-    #   -stored_portfolios(list[tuple]); all user portfolios listed as portfolio id, name
-    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
-    # PRECONDITION:
-    #   -username; a user with this username exists in the database
-    # POSTCONDITION:
-    #   -stored_user; see Database.pull_user() POSTCONDITION
-    #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
-    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
-    # RAISES: None
-    def retrieve_stored_data(self, username : str) -> tuple[tuple, list[tuple], list[tuple]]:
-        stored_user = self.db.pull_user(username)
-        stored_portfolios = self.db.pull_portfolios(stored_user[0])
-        stored_stocks = self.db.pull_stocks(stored_user[0])
-
-        return stored_user, stored_portfolios, stored_stocks
-
-
-    # INPUT:
-    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
-    # OUTPUT:
-    #   -portfolio_assignments(dict[int, list[tuple]]); list of stock data keyed to specific portfolio id
-    # PRECONDITION:
-    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
-    # POSTCONDITION:
-    #   -portfolio_assignments; each portfolio id maps to its list of stock tuples
-    # RAISES: None
-    def assign_portfolio_allocations(self, stored_stocks : list[tuple]) -> dict[int, list[tuple]]:
-        portfolio_assignments = defaultdict(list)
-        for stock in stored_stocks:
-            p_id = stock[0]
-            portfolio_assignments[p_id].append(stock[1:])
-
-        return portfolio_assignments
-
-
-    # INPUT:
-    #   -user_account(User); current user account
-    #   -username(str); user username
-    # OUTPUT: None
-    # PRECONDITION:
-    #   -user_account; is empty
-    #   -username; a user with this username exists in the database
-    # POSTCONDITION:
-    #   -user_account; populated with id, username, balance, all portfolios and their stocks from database
-    # RAISES: None
-    def populate_user_account(self, user_account : User, username : str) -> None:
-        stored_user, stored_portfolios, stored_stocks = self.retrieve_stored_data(username)
-
-        user_account.id = stored_user[0]
-        user_account.username = stored_user[1]
-        user_account.balance = stored_user[3]
-
-        self.populate_user_portfolios(user_account.portfolios, stored_portfolios, stored_stocks)
-        
-
-    # INPUT:
-    #   -user_portfolios(dict[str,Portfolio]); user portfolios keyed by portfolio name
-    #   -stored_portfolios(list[tuple]); all user portfolios listed as portfolio id, name 
-    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
-    # OUTPUT: None
-    # PRECONDITION:
-    #   -user_portfolios; is empty
-    #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
-    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
-    # POSTCONDITION:
-    #   -user_portfolios; populated with all portfolios and their respective stocks
-    # RAISES: None
-    def populate_user_portfolios(self, user_portfolios : dict[str, Portfolio], stored_portfolios : list[tuple], stored_stocks : list[tuple]) -> None:
-        stored_stocks = self.assign_portfolio_allocations(stored_stocks)
-
-        for portfolio in stored_portfolios:
-
-            p_id = portfolio[0]
-            p_name = portfolio[1]
-
-            user_portfolios[p_name] = Portfolio(id=p_id,name=p_name)
-
-            self.populate_portfolio_stocks(user_portfolios[p_name].stocks, stored_stocks.get(p_id, []))
     
-
-    # INPUT:
-    #   -portfolio_stocks(dict[str,Stock]); a users portfolio stocks keyed by ticker 
-    #   -stored_portfolio_stocks(list[tuple]); specific portfolios stock list
-    # OUTPUT: None
-    # PRECONDITION:
-    #   -portfolio_stocks; is empty
-    #   -stored_portfolio_stocks; contains all stocks for given portfolio
-    # POSTCONDITION:
-    #   -portfolio_stocks; populated with all stocks for the given portfolio
-    # RAISES: None
-    def populate_portfolio_stocks(self, portfolio_stocks : dict[str, Stock], stored_portfolio_stocks : list[tuple]) -> None:
-
-        for stock in stored_portfolio_stocks:
-
-            s_id = stock[0]
-            s_ticker = stock[1]
-            s_quantity = stock[2]
-
-            portfolio_stocks[s_ticker] = Stock(id=s_id, ticker=s_ticker, quantity=s_quantity)
-
-
     # INPUT: None
     # OUTPUT: None
     # PRECONDITION: None

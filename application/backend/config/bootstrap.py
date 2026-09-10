@@ -36,10 +36,11 @@ class App:
         else:
             db_source = env.get_database_source()
 
-        self.san = Sanitizer()
+        
         self.db = Database(db_source)
         self.serv = Service(self.db)
         self.val = Validator(self.serv)
+        self.san = Sanitizer()
 
         if frontend:
             self.display = Frontend(self.serv, self.san, self.val)
