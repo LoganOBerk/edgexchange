@@ -43,10 +43,14 @@ class Validator:
 
         if username == '' and (password == '' or password.isspace()):
             return Result(False, "No credentials entered.\n")
-        
-        stored_password = self.serv.resolve_password(username)
-        account_exists = stored_password is not None
 
+        stored_user = self.serv.identify_user(username)
+        account_exists = stored_user is not None
+
+        if account_exists:
+            stored_username = stored_user.username
+            stored_password = stored_user.password
+        
         if new and account_exists:
             return Result(False, "An account with this username already exists.\n")
 

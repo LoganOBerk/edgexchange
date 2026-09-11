@@ -1,10 +1,11 @@
 import sys
 
-from common.errors import DatabaseError, LiveCacheError, ServiceError
+from .hydrator import hydrate_account
 from common.security import secure_creds
-from domain_models import User, Portfolio, hydrate_account
+from common.errors import DatabaseError, LiveCacheError, ServiceError
+from domain_models import User, Portfolio
 from integration_layer import LiveCache as lcac
-
+from persistence_layer import StoredUser, StoredPortfolio, StoredStock
 
 # PURPOSE:
 #   -Service provides a routing/serving, and memory populator abstraction
@@ -17,13 +18,13 @@ class Service:
     # INPUT:
     #   -username(str); user username
     # OUTPUT:
-    #   -user_dat(tuple); user id, username, password, balance
+    #   -user_dat(StoredUser); user id, username, password, balance
     # PRECONDITION: None
     # POSTCONDITION:
     #   -user_dat; user information provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; database call fails
-    def identify_user(self, username : str) -> int:
+    def identify_user(self, username : str) -> StoredUser:
         try:
 
             user_dat = self.db.pull_user(username)
@@ -37,47 +38,9 @@ class Service:
     # INPUT:
     #   -username(str); user username
     # OUTPUT:
-    #   -user_password(str | None); stored password for given username
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -user_password; user password provided if username exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; propagated from identify_user()
-    def resolve_password(self, username : str) -> str | None:
-        user_password = None
-        user_dat = self.identify_user(username)
-
-        if user_dat is not None:
-            user_password = user_dat[2]
-            
-        return user_password
-    
-    
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -u_id(int | None); stored user id for given username
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -u_id; user id provided if username exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; propagated from identify_user()
-    def resolve_uid(self, username : str) -> int | None:
-        u_id = None
-        user_dat = self.identify_user(username)
-
-        if user_dat is not None:
-            u_id = user_dat[0]
-            
-        return u_id
-
-
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -stored_user(tuple); user id, username, balance
-    #   -stored_portfolios(list[tuple]); all user portfolios listed as portfolio id, name
-    #   -stored_stocks(list[tuple]); all user stocks listed as portfolio id, stock id, ticker, quantity
+    #   -stored_user(StoredUser); user id, username, password, balance
+    #   -stored_portfolios(list[StoredPortfolio]); all user portfolios portfolio id, user id, name
+    #   -stored_stocks(list[StoredStock]); all user stocks stock id, portfolio id, ticker, quantity
     # PRECONDITION:
     #   -username; a user with this username exists in the database
     # POSTCONDITION:
@@ -85,10 +48,10 @@ class Service:
     #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
     #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
     # RAISES: None
-    def retrieve_account_data(self, username : str) -> tuple[tuple, list[tuple], list[tuple]]:
+    def retrieve_account_data(self, username : str) -> tuple[StoredUser, list[StoredPortfolio], list[StoredStock]]:
         stored_user = self.db.pull_user(username)
-        stored_portfolios = self.db.pull_portfolios(stored_user[0])
-        stored_stocks = self.db.pull_stocks(stored_user[0])
+        stored_portfolios = self.db.pull_portfolios(stored_user.id)
+        stored_stocks = self.db.pull_stocks(stored_user.id)
 
         return stored_user, stored_portfolios, stored_stocks
 

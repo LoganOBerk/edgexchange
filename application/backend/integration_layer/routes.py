@@ -6,7 +6,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
 from common.errors import ServiceError, ValidationError
-from .pydmodels import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest, PortfolioData, UserData
+from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest
+from .pydantic_models.responses import UserData, PortfolioData
 
 
 frontend_api = None

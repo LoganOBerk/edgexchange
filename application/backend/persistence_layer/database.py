@@ -3,6 +3,8 @@ from sqlite3 import Error as SqliteError
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
+from .data_models import StoredUser, StoredPortfolio, StoredStock
+
 
 # PURPOSE: 
 #   -Database provides a SQLite database operation abstraction
@@ -96,7 +98,7 @@ class Database:
         except SqliteError as e:
             raise DatabaseError(f"pull_user failed: {e}") from e
         
-        user_data = cursor.fetchone()
+        user_data = StoredUser(*cursor.fetchone())
 
         return user_data
 
@@ -115,7 +117,7 @@ class Database:
         cursor = self.conn.cursor()
 
         pull_portfolios = f'''
-            SELECT id, name
+            SELECT id, user_id, name
             FROM portfolios
             WHERE user_id = ?
         '''
@@ -127,7 +129,7 @@ class Database:
         except SqliteError as e:
             raise DatabaseError(f"pull_portfolios failed: {e}") from e
 
-        user_portfolios = cursor.fetchall()
+        user_portfolios = [StoredPortfolio(*portfolio_data) for portfolio_data in cursor.fetchall()]
 
         return user_portfolios
 
@@ -146,7 +148,7 @@ class Database:
         cursor = self.conn.cursor()
 
         pull_stocks = f'''
-            SELECT s.portfolio_id, s.id, s.ticker, s.quantity
+            SELECT s.id, s.portfolio_id, s.ticker, s.quantity
             FROM stocks s
             JOIN portfolios p ON s.portfolio_id = p.id
             WHERE p.user_id = ?
@@ -159,7 +161,7 @@ class Database:
         except SqliteError as e:
             raise DatabaseError(f"pull_stocks failed: {e}") from e
 
-        user_stocks = cursor.fetchall()
+        user_stocks = [StoredStock(*stock_data) for stock_data in cursor.fetchall()]
 
         return user_stocks
 
