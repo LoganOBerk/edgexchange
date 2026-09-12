@@ -19,6 +19,15 @@ active_users : dict[int, object] = {}
 
 session_lock = Lock()
 
+
+# INPUT:
+#   -u_id(int); user identification number
+# OUTPUT:
+#   -is_cached(bool); True or False if user is in the cache
+# PRECONDITION: None
+# POSTCONDITION:
+#   -is_cached; returns True when u_id has a user in cache, False otherwise
+# RAISES: None
 def cached(u_id : int) -> bool:
     is_cached = active_users.get(u_id) is not None
     return is_cached
