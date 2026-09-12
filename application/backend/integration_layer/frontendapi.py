@@ -22,21 +22,6 @@ class FrontendApi:
         connect(self)
 
 
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -u_id(int); user id
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -u_id; user id provided if username exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; database call fails
-    def resolve_uid(self, username) -> int:
-        username = self.san.sanitize_username(username)
-        u_id = self.serv.identify_user(username).id
-        return u_id 
-
-
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.create_account() fields
     # RAISES:
     #   -ValidationError; see Validator.account_validator() POSTCONDITION (new=True)

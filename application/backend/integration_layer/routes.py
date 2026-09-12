@@ -19,6 +19,10 @@ active_users : dict[int, object] = {}
 
 session_lock = Lock()
 
+def cached(u_id : int) -> bool:
+    is_cached = active_users.get(u_id) is not None
+    return is_cached
+
 
 # INPUT:
 #   -api(FrontendApi); functional interface
@@ -137,11 +141,12 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
     creds = (req.username, req.password)
 
     try:
-        u_id = frontend_api.resolve_uid(req.username)
-        user = active_users.get(u_id)
 
-        if user is None:
-            user = frontend_api.find_account(creds)
+        user = frontend_api.find_account(creds)
+
+        if cached(user.id):
+            user = active_users.get(user.id) 
+        
 
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))

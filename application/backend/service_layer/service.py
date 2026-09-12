@@ -38,27 +38,6 @@ class Service:
     # INPUT:
     #   -username(str); user username
     # OUTPUT:
-    #   -stored_user(StoredUser); user id, username, password, balance
-    #   -stored_portfolios(list[StoredPortfolio]); all user portfolios portfolio id, user id, name
-    #   -stored_stocks(list[StoredStock]); all user stocks stock id, portfolio id, ticker, quantity
-    # PRECONDITION:
-    #   -username; a user with this username exists in the database
-    # POSTCONDITION:
-    #   -stored_user; see Database.pull_user() POSTCONDITION
-    #   -stored_portfolios; see Database.pull_portfolios() POSTCONDITION
-    #   -stored_stocks; see Database.pull_stocks() POSTCONDITION
-    # RAISES: None
-    def retrieve_account_data(self, username : str) -> tuple[StoredUser, list[StoredPortfolio], list[StoredStock]]:
-        stored_user = self.db.pull_user(username)
-        stored_portfolios = self.db.pull_portfolios(stored_user.id)
-        stored_stocks = self.db.pull_stocks(stored_user.id)
-
-        return stored_user, stored_portfolios, stored_stocks
-
-
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
     #   -user(User); populated account for the given username
     # PRECONDITION:
     #   -username; a user with this username exists in the database
@@ -69,7 +48,7 @@ class Service:
     def find_account(self, username : str) -> User:
         try:
 
-            user = hydrate_account(self.retrieve_account_data(username))
+            user = hydrate_account(self.db.pull_account(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e

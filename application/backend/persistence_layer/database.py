@@ -3,7 +3,7 @@ from sqlite3 import Error as SqliteError
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
-from .data_models import StoredUser, StoredPortfolio, StoredStock
+from .data_models import StoredUser, StoredPortfolio, StoredStock, StoredAccountData
 
 
 # PURPOSE: 
@@ -369,6 +369,25 @@ class Database:
 
         except SqliteError as e:
             raise DatabaseError(f"update_funds failed: {e}") from e
+
+
+    # INPUT:
+    #   -username(str); user username
+    # OUTPUT:
+    #   -account_data(StoredAccountData); respective users stored information see hydrator for details
+    # PRECONDITION:
+    #   -username; a user with this username exists in the database
+    # POSTCONDITION:
+    #   -account_data; account data is populated with each data element, see Database.pull_user(), Database.pull_portfolios, and Database.pull_stocks() POSTCONDITIONS
+    # RAISES: None
+    def pull_account(self, username : str) -> StoredAccountData:
+        stored_user = self.pull_user(username)
+        stored_portfolios = self.pull_portfolios(stored_user.id)
+        stored_stocks = self.pull_stocks(stored_user.id)
+
+        account_data = StoredAccountData(*(stored_user, stored_portfolios, stored_stocks))
+        
+        return account_data
 
     
     # INPUT: None

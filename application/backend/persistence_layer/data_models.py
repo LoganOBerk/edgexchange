@@ -17,4 +17,7 @@ class StoredStock(NamedTuple):
     ticker : str
     quantity : int
 
-    
+class StoredAccountData(NamedTuple):
+    user : StoredUser
+    portfolios : list[StoredPortfolio]
+    stocks : list[StoredStock]
