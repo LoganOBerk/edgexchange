@@ -1,11 +1,38 @@
 import sys
 
-from .hydrator import hydrate_account
 from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
-from domain_models import User, Portfolio
+from domain_models import User, Portfolio, Stock
 from integration_layer import LiveCache as lcac
-from persistence_layer import StoredUser, StoredPortfolio, StoredStock
+from persistence_layer import StoredAccountData, StoredUser
+
+
+
+# INPUT:
+#   -stored_data(StoredAccountData); all data related to user account
+# OUTPUT:
+#   -user(User); a fully populated user object
+# PRECONDITION:
+#   -stored_data; some non empty set of stored data for a real user
+# POSTCONDITION:
+#   -user; populated with id, username, balance, all portfolios and their stocks from database
+# RAISES: None
+def build_account(stored_data : StoredAccountData) -> User:
+    user = stored_data.user
+    portfolios = stored_data.portfolios
+    stocks = stored_data.stocks
+    
+
+    user = User(id = user.id, username = user.username, balance = user.balance)
+
+    for portfolio in portfolios:
+            user.portfolios[portfolio.name] = Portfolio(id = portfolio.id, name = portfolio.name)
+
+            for stock in stocks.get(portfolio.id, []):
+                user.portfolios[portfolio.name].stocks[stock.ticker] = Stock(id = stock.id, ticker = stock.ticker, quantity = stock.quantity)
+
+    return user
+
 
 # PURPOSE:
 #   -Service provides a routing/serving, and memory populator abstraction
@@ -48,7 +75,7 @@ class Service:
     def find_account(self, username : str) -> User:
         try:
 
-            user = hydrate_account(self.db.pull_account(username))
+            user = build_account(self.db.pull_account(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
