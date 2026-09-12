@@ -98,12 +98,14 @@ uv run edgexchange -s -v 5
 ## System Architecture
 
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-architecture.svg">
   <img src="diagrams/system-architecture.png" alt="Architecture Diagram">
 </picture>
 
 ### Database Architecture
 
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-database.svg">
   <img src="diagrams/system-database.png" alt="Database Crow Diagram">
 </picture>
 
@@ -115,26 +117,31 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 ### Create Account
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
   <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe">
 </picture>
 
 ### Find Account
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
   <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe">
 </picture>
 
 ### Fund Account
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
   <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe">
 </picture>
 
 ### Create / Remove Portfolio
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
   <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe">
 </picture>
 
 ### Execute Buy / Sell
 <picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
   <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe">
 </picture>
 
