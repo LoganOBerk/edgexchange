@@ -99,14 +99,14 @@ uv run edgexchange -s -v 5
 
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-architecture.svg">
-  <img src="diagrams/system-architecture.png" alt="Architecture Diagram">
+  <img src="diagrams/system-architecture.png" alt="System Architecture" width="677">
 </picture>
 
 ### Database Architecture
-
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-database.svg">
-  <img src="diagrams/system-database.png" alt="Database Crow Diagram">
+  <img src="diagrams/system-database.png" alt="Database Architecture" width="1362">
 </picture>
 
 ---
@@ -115,34 +115,44 @@ uv run edgexchange -s -v 5
 
 Core feature pipelines with traversal through layers and main method calls excluding helper functions.
 
+
 ### Create Account
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
-  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe">
+  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe" width="495">
 </picture>
+
 
 ### Find Account
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
-  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe">
+  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe" width="476">
 </picture>
+
 
 ### Fund Account
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
-  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe">
+  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe" width="495">
 </picture>
+
 
 ### Create / Remove Portfolio
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
-  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe">
+  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe" width="589">
 </picture>
 
+
 ### Execute Buy / Sell
+---
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
-  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe">
+  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe" width="545">
 </picture>
 
 ---
