@@ -33,7 +33,7 @@ class StoredStock(NamedTuple):
 
 # PURPOSE:
 #   -AccountStub provides an abstraction for the account field declaration
-#   -exists so StoredAccount can override __new__ without redeclaring fields
+#   -exists so StoredAccount can keep NamedTuple's behavior with custom construction
 class AccountStub(NamedTuple):
     user : StoredUser
     portfolios : list[StoredPortfolio]
