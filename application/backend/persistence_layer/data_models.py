@@ -37,7 +37,7 @@ class StoredStock(NamedTuple):
 class StoredAccount(NamedTuple):
     user : StoredUser
     portfolios : list[StoredPortfolio]
-    stocks : dict[int, StoredStock]
+    stocks : dict[int, list[StoredStock]]
 
 
 # PURPOSE:
