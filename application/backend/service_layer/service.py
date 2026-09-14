@@ -57,14 +57,14 @@ class Service:
         return price
 
     
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.check_existance()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.check_existence()
     # RAISES: 
-    #   -ServiceError; propagated from LiveCache.check_existance()
+    #   -ServiceError; propagated from LiveCache.check_existence()
     @staticmethod
-    def field_existance(ticker : str) -> bool:
+    def field_existence(ticker : str) -> bool:
         try:
                         
-            exist = lcac.check_existance(ticker)
+            exist = lcac.check_existence(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to field if stock exists") from e
