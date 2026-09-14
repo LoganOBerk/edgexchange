@@ -89,25 +89,25 @@ flowchart TD
     D --> E["Service.create_account"]
     E --> F[("Database.insert_user")]
 
-    classDef client fill:#F1EFE8,stroke:#888780,color:#444441
-    classDef integration fill:#FAEEDA,stroke:#854F0B,color:#633806
-    classDef sanitization fill:#E1F5EE,stroke:#0F6E56,color:#085041
-    classDef validation fill:#EAF2FB,stroke:#185FA5,color:#0C447C
-    classDef service fill:#DDF4F1,stroke:#0E7C74,color:#0A5450
-    classDef persistence fill:#FAECE7,stroke:#993C1D,color:#712B13
+    A:::client
+    B:::integration
+    C:::sanitization
+    D:::validation
+    E:::service
+    F:::persistence
 
-    class A client
-    class B integration
-    class C sanitization
-    class D validation
-    class E service
-    class F persistence
+    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
+    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
+    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
+    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
+    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
+    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
 
-    linkStyle 0 stroke:#FF6D00,fill:none
-    linkStyle 1 stroke:#FF6D00,fill:none
-    linkStyle 2 stroke:#FF6D00,fill:none
-    linkStyle 3 stroke:#FF6D00,fill:none
-    linkStyle 4 stroke:#FF6D00
+    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
 
 # Find Account
 flowchart TD
@@ -117,25 +117,25 @@ flowchart TD
     D --> E["Service.find_account"]
     E --> F[("Database.pull_account")]
 
-    classDef client fill:#F1EFE8,stroke:#888780,color:#444441
-    classDef integration fill:#FAEEDA,stroke:#854F0B,color:#633806
-    classDef sanitization fill:#E1F5EE,stroke:#0F6E56,color:#085041
-    classDef validation fill:#EAF2FB,stroke:#185FA5,color:#0C447C
-    classDef service fill:#DDF4F1,stroke:#0E7C74,color:#0A5450
-    classDef persistence fill:#FAECE7,stroke:#993C1D,color:#712B13
+    A:::client
+    B:::integration
+    C:::sanitization
+    D:::validation
+    E:::service
+    F:::persistence
 
-    class A client
-    class B integration
-    class C sanitization
-    class D validation
-    class E service
-    class F persistence
+    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
+    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
+    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
+    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
+    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
+    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
 
-    linkStyle 0 stroke:#FF6D00,fill:none
-    linkStyle 1 stroke:#FF6D00,fill:none
-    linkStyle 2 stroke:#FF6D00,fill:none
-    linkStyle 3 stroke:#FF6D00,fill:none
-    linkStyle 4 stroke:#FF6D00
+    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
 
 # Fund Account
 flowchart TD
@@ -145,25 +145,25 @@ flowchart TD
     D --> E["Service.fund_account"]
     E --> F[("Database.update_funds")]
 
-    classDef client fill:#F1EFE8,stroke:#888780,color:#444441
-    classDef integration fill:#FAEEDA,stroke:#854F0B,color:#633806
-    classDef sanitization fill:#E1F5EE,stroke:#0F6E56,color:#085041
-    classDef validation fill:#EAF2FB,stroke:#185FA5,color:#0C447C
-    classDef service fill:#DDF4F1,stroke:#0E7C74,color:#0A5450
-    classDef persistence fill:#FAECE7,stroke:#993C1D,color:#712B13
+    A:::client
+    B:::integration
+    C:::sanitization
+    D:::validation
+    E:::service
+    F:::persistence
 
-    class A client
-    class B integration
-    class C sanitization
-    class D validation
-    class E service
-    class F persistence
+    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
+    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
+    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
+    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
+    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
+    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
 
-    linkStyle 0 stroke:#FF6D00,fill:none
-    linkStyle 1 stroke:#FF6D00,fill:none
-    linkStyle 2 stroke:#FF6D00,fill:none
-    linkStyle 3 stroke:#FF6D00,fill:none
-    linkStyle 4 stroke:#FF6D00
+    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
 
 # Create/Remove Portfolio
 flowchart TD
@@ -173,25 +173,25 @@ flowchart TD
     D --> E["Service.create/remove_portfolio"]
     E --> F[("Database.insert/delete_portfolio")]
 
-    classDef client fill:#F1EFE8,stroke:#888780,color:#444441
-    classDef integration fill:#FAEEDA,stroke:#854F0B,color:#633806
-    classDef sanitization fill:#E1F5EE,stroke:#0F6E56,color:#085041
-    classDef validation fill:#EAF2FB,stroke:#185FA5,color:#0C447C
-    classDef service fill:#DDF4F1,stroke:#0E7C74,color:#0A5450
-    classDef persistence fill:#FAECE7,stroke:#993C1D,color:#712B13
+    A:::client
+    B:::integration
+    C:::sanitization
+    D:::validation
+    E:::service
+    F:::persistence
 
-    class A client
-    class B integration
-    class C sanitization
-    class D validation
-    class E service
-    class F persistence
+    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
+    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
+    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
+    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
+    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
+    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
 
-    linkStyle 0 stroke:#FF6D00,fill:none
-    linkStyle 1 stroke:#FF6D00,fill:none
-    linkStyle 2 stroke:#FF6D00,fill:none
-    linkStyle 3 stroke:#FF6D00,fill:none
-    linkStyle 4 stroke:#FF6D00
+    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
 
 # Execute Buy/Sell
 flowchart TD
@@ -201,22 +201,22 @@ flowchart TD
     D --> E["Service.execute_buy/sell"]
     E --> F[("Database.update/insert/delete_stock")]
 
-    classDef client fill:#F1EFE8,stroke:#888780,color:#444441
-    classDef integration fill:#FAEEDA,stroke:#854F0B,color:#633806
-    classDef sanitization fill:#E1F5EE,stroke:#0F6E56,color:#085041
-    classDef validation fill:#EAF2FB,stroke:#185FA5,color:#0C447C
-    classDef service fill:#DDF4F1,stroke:#0E7C74,color:#0A5450
-    classDef persistence fill:#FAECE7,stroke:#993C1D,color:#712B13
+    A:::client
+    B:::integration
+    C:::sanitization
+    D:::validation
+    E:::service
+    F:::persistence
 
-    class A client
-    class B integration
-    class C sanitization
-    class D validation
-    class E service
-    class F persistence
+    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
+    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
+    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
+    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
+    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
+    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
 
-    linkStyle 0 stroke:#FF6D00,fill:none
-    linkStyle 1 stroke:#FF6D00,fill:none
-    linkStyle 2 stroke:#FF6D00,fill:none
-    linkStyle 3 stroke:#FF6D00,fill:none
-    linkStyle 4 stroke:#FF6D00
+    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
