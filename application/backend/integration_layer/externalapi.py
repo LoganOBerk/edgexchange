@@ -28,7 +28,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails
     @staticmethod
-    def does_ticker_exist(ticker : str) -> bool:
+    def check_existance(ticker : str) -> bool:
 
         try: 
 

@@ -6,11 +6,12 @@ from collections import defaultdict
 from datetime import date
 
 from common.errors import FetchingError, LiveCacheError
-from common.constants import PRICE_REFRESH_INTERVAL, selfexp
 from common.entropy import inject_volatility
 from .externalapi import ExternalApi as eapi
 
 
+REFRESH_INTERVAL = 5
+RECENCY_INTERVAL = REFRESH_INTERVAL*5
 
 cache = defaultdict(lambda : {"price" : None, "quote" : None, "quote_date" : None, "last_accessed" : None})
 persistent_cache = defaultdict(lambda : {"sector" : None, "float" : None})
@@ -136,7 +137,7 @@ def abort(ticker : str) -> None:
 # RAISES: None
 def stock_needs_refresh(ticker : str) -> bool:
     stock_is_empty = read(ticker, "price") is None
-    stock_is_active = stock_is_empty or read(ticker, "last_accessed") >= time.time() - selfexp(PRICE_REFRESH_INTERVAL)
+    stock_is_active = stock_is_empty or read(ticker, "last_accessed") >= time.time() - RECENCY_INTERVAL
 
     needs_refresh = stock_is_active
 
@@ -228,7 +229,7 @@ def price_runner():
 # PRECONDITION: 
 #   -cache; quotes and price for a stock are always in sync
 # POSTCONDITION:
-#    -cache; quotes refreshed daily, tickers accessed within selfexp(PRICE_REFRESH_INTERVAL) are refreshed
+#    -cache; quotes refreshed daily, tickers accessed within RECENCY_INTERVAL are refreshed
 #    -cache_lock; all waiters are notified on cache changes, failed quote either results in longer wait time or stale quote
 # RAISES: None
 def run():
@@ -245,7 +246,7 @@ def run():
         end = time.time()
         latency = end - start
         
-        time.sleep(max(0, PRICE_REFRESH_INTERVAL - latency))
+        time.sleep(max(0, REFRESH_INTERVAL - latency))
 
 Thread(target = run, daemon = True).start()
 
@@ -269,17 +270,17 @@ class LiveCache:
         return price
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.does_ticker_exist()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.check_existance()
     # RAISES: 
-    #   -LiveCacheError; propagated from ExternalApi.does_ticker_exist()
+    #   -LiveCacheError; propagated from ExternalApi.check_existance()
     @staticmethod
-    def does_ticker_exist(ticker : str) -> bool:
+    def check_existance(ticker : str) -> bool:
         exist = True
 
         try:
 
             if ticker not in cache:
-                exist = eapi.does_ticker_exist(ticker)
+                exist = eapi.check_existance(ticker)
 
         except FetchingError as e:
             raise LiveCacheError("Ticker search failed") from e

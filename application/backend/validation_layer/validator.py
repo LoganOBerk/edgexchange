@@ -2,8 +2,7 @@ import re
 from typing import NamedTuple
 
 from common.security import password_match
-from common.errors import LiveCacheError
-from integration_layer import LiveCache as lcac
+from common.errors import ServiceError
 
 # PURPOSE: 
 #   -Result provides description abstraction
@@ -44,8 +43,13 @@ class Validator:
         if username == '' and (password == '' or password.isspace()):
             return Result(False, "No credentials entered.\n")
 
-        stored_user = self.serv.resolve_user(username)
-        account_exists = stored_user is not None
+        try:
+
+            stored_user = self.serv.field_user(username)
+            account_exists = stored_user is not None
+
+        except ServiceError as e:
+            return Result(False, "Account can not be validated at this time.\n")
 
         if account_exists:
             stored_username = stored_user.username
@@ -82,8 +86,7 @@ class Validator:
     # POSTCONDITION:
     #   -Result; True if name is non-empty and not taken (create), or exists in account and is empty
     # RAISES: None
-    @staticmethod
-    def portfolio_validator(user_account, portfolio_name : str, create : bool) -> Result:
+    def portfolio_validator(self, user_account, portfolio_name : str, create : bool) -> Result:
         
         in_account = portfolio_name in user_account.portfolios
         portfolio_empty = not user_account.portfolios[portfolio_name].stocks if in_account else False 
@@ -116,20 +119,19 @@ class Validator:
     # POSTCONDITION:
     #   -Result; True if ticker matches [A-Z]{1,5} and exists on open market
     # RAISES: None
-    @staticmethod
-    def stock_validator(ticker):
-        if not re.fullmatch(r"[A-Z]{1,5}", ticker):
-           return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
-        
+    def stock_validator(self, ticker):
         try:
+            if not re.fullmatch(r"[A-Z]{1,5}", ticker):
+                return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
 
-            if not lcac.does_ticker_exist(ticker):
+            if not self.serv.field_existance(ticker):
                 return Result(False, "This stock does not exist on the open market.\n")
-            
-        except LiveCacheError as e:
+                
+            return Result(True, "")
+
+        except ServiceError as e:
             return Result(False, "Stock choice could not be verified at this time.\n")
 
-        return Result(True, "")
 
     # INPUT:
     #   -portfolio(Portfolio); user portfolio to update
@@ -145,56 +147,51 @@ class Validator:
     # POSTCONDITION:
     #   -Result; True if all three sub-validations pass, False with first failing reason
     # RAISES: None
-    @staticmethod
-    def shares_request_validator(portfolio, shares_request : tuple[str,int], balance : float, purchase : bool):
+    def shares_request_validator(self, portfolio, shares_request : tuple[str,int], balance : float, purchase : bool):
 
         ticker, quantity = shares_request
 
-       
-        #Validate ticker
-        if not re.fullmatch(r"[A-Z]{1,5}", ticker):
-           return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
-        
         try:
 
-            if purchase and not lcac.does_ticker_exist(ticker):
+            #Validate ticker
+            if not re.fullmatch(r"[A-Z]{1,5}", ticker):
+                return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
+
+            if purchase and not self.serv.check_existance(ticker):
                 return Result(False, "This stock does not exist on the open market.\n")
+                
+            if not purchase and ticker not in portfolio.stocks:
+                return Result(False, "You do not own this stock.\n")
+
+            #Validate Quantity
+            if quantity is None:
+                return Result(False, "Quantity entered must be a valid number.\n")
+
+            if quantity <= 0:
+                return Result(False, "Requested quantity must be positive.\n")
             
-        except LiveCacheError as e:
+            if purchase and self.serv.field_float(ticker) < quantity:
+                return Result(False, "Requested quantity exceeds available shares on open market.\n")
+                
+            if not purchase and portfolio.stocks[ticker].quantity < quantity:
+                return Result(False, "You do not own enough shares to sell.\n")
+
+            #Validate Balance
+            if purchase: 
+                price = self.serv.field_price(ticker)
+                total_cost = price * quantity
+
+                if balance < total_cost:
+                    return Result(False, "Shares requested exceed current balance.\n")
+
+        
+            if purchase:
+                return Result(True, f"{quantity} shares of {ticker} successfully purchased.\n")
+            else:
+                return Result(True, f"{quantity} shares of {ticker} successfully sold.\n")
+
+        except ServiceError as e:
             return Result(False, "Stock choice could not be verified at this time.\n")
-
-        if not purchase and ticker not in portfolio.stocks:
-            return Result(False, "You do not own this stock.\n")
-
-
-        #Validate Quantity
-        if quantity is None:
-            return Result(False, "Quantity entered must be a valid number.\n")
-
-        if quantity <= 0:
-            return Result(False, "Requested quantity must be positive.\n")
-
-        if purchase and lcac.get_float(ticker) < quantity:
-           return Result(False, "Requested quantity exceeds available shares on open market.\n")
-            
-        if not purchase and portfolio.stocks[ticker].quantity < quantity:
-            return Result(False, "You do not own enough shares to sell.\n")
-
-
-        #Validate Balance
-        if purchase: 
-            price = lcac.get_price(ticker)
-            total_cost = price * quantity
-
-            if balance < total_cost:
-                return Result(False, "Shares requested exceed current balance.\n")
-
-
-
-        if purchase:
-            return Result(True, f"{quantity} shares of {ticker} successfully purchased.\n")
-        else:
-            return Result(True, f"{quantity} shares of {ticker} successfully sold.\n")
 
 
     # INPUT:
@@ -206,8 +203,7 @@ class Validator:
     # POSTCONDITION:
     #   -Result; True if 0 < funds_request < 1,000,000
     # RAISES: None
-    @staticmethod
-    def fund_validator(funds_request : float) -> Result:
+    def fund_validator(self, funds_request : float) -> Result:
        
         if funds_request is None:
             return Result(False, "Funds requested must be a valid number.\n")

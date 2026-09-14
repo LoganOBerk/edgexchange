@@ -436,11 +436,10 @@ def get_user(session_id : str) -> dict[str, UserData]:
 #   -HTTPException(400); a ValidationError is raised, invalid ticker
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.get("/quote")
-def get_quote(ticker : str) -> dict[str, dict]:
+async def get_quote(ticker : str) -> dict[str, dict]:
     try:
 
-        quote = frontend_api.quote(ticker)
-        response = {"quote" : quote}
+        live_data = frontend_api.make_quote_stream(ticker)
         
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -448,8 +447,7 @@ def get_quote(ticker : str) -> dict[str, dict]:
     except ServiceError as e:
         raise HTTPException(status_code = 500, detail = str(e))
 
-   
-    return response
+    return StreamingResponse(live_data, media_type = "application/x-ndjson")
 
 
 # INPUT:
@@ -462,7 +460,7 @@ def get_quote(ticker : str) -> dict[str, dict]:
 # RAISES:
 #   -HTTPException(401); unauthorized, user session does not exist
 #   -HTTPException(404); portfolios are not found   
-@router.get("/live_data")
+@router.get("/portfolios")
 async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
     user = find_sessions_user(session_id)
 

@@ -41,25 +41,70 @@ class Service:
     def __init__(self, database):
         self.db = database
 
+
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.get_price()
+    # RAISES: 
+    #   -ServiceError; propagated from LiveCache.get_price()
+    @staticmethod
+    def field_price(ticker : str) -> float:
+        try:
+                                
+            price = lcac.get_price(ticker)
+
+        except LiveCacheError as e:
+            raise ServiceError("Failed to field a price") from e
+
+        return price
+
     
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.check_existance()
+    # RAISES: 
+    #   -ServiceError; propagated from LiveCache.check_existance()
+    @staticmethod
+    def field_existance(ticker : str) -> bool:
+        try:
+                        
+            exist = lcac.check_existance(ticker)
+
+        except LiveCacheError as e:
+            raise ServiceError("Failed to field if stock exists") from e
+
+        return exist
+
+    
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in Livecache.get_float()
+    # RAISES: 
+    #   -ServiceError; propagated from LiveCache.get_float()
+    @staticmethod
+    def field_float(ticker : str) -> int:
+        try:
+                
+            float = lcac.get_float(ticker)
+
+        except LiveCacheError as e:
+            raise ServiceError("Failed to field a float share number") from e
+
+        return float
+
+
     # INPUT:
     #   -username(str); user username
     # OUTPUT:
-    #   -user_dat(StoredUser); user id, username, password, balance
+    #   -user_fields(StoredUser); user id, username, password, balance
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -user_dat; user information provided if username exists in database, None otherwise
+    #   -user_fields; user information provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; database call fails
-    def resolve_user(self, username : str) -> StoredUser:
+    def field_user(self, username : str) -> StoredUser:
         try:
 
-            user_dat = self.db.pull_user(username)
+            user_fields = self.db.pull_user(username)
 
         except DatabaseError as e:
-            raise ServiceError("Failed to match credentials") from e
+            raise ServiceError("Failed to find user fields") from e
 
-        return user_dat
+        return user_fields
 
 
 
@@ -268,7 +313,7 @@ class Service:
     #   -ServiceError; propagated from LiveCache.get_quote()
     def quote(self, ticker : str):
         try:
-
+        
             quote = lcac.get_quote(ticker)
 
         except LiveCacheError as e:

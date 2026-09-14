@@ -27,10 +27,18 @@ export const removePortfolio = (session_id, name) => post("/portfolio/remove", {
 export const executeBuy = (session_id, portfolio_name, ticker, quantity) => post("/buy", { session_id, portfolio_name, ticker, quantity });
 export const executeSell = (session_id, portfolio_name, ticker, quantity) => post("/sell", { session_id, portfolio_name, ticker, quantity });
 
-export function subscribeLiveData(session_id, portfolio_name, onData, onError) {
-    const url = `${BASE}/live_data?session_id=${session_id}&portfolio_name=${portfolio_name}`;
+// Shared ndjson stream reader. Resolves each parsed line to onData, or
+// reports failure (either a non-2xx before the stream opens, or a
+// mid-stream fetch failure) to onError. Returns an unsubscribe function.
+function streamNdjson(url, onData, onError) {
     const controller = new AbortController();
     fetch(url, { signal: controller.signal }).then(async (res) => {
+        if (!res.ok) {
+            const text = await res.text();
+            let detail; try { detail = JSON.parse(text)?.detail; } catch { }
+            onError?.(detail || `Server error (${res.status})`);
+            return;
+        }
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         while (true) {
@@ -39,13 +47,17 @@ export function subscribeLiveData(session_id, portfolio_name, onData, onError) {
             for (const line of decoder.decode(value).trim().split("\n"))
                 if (line) try { onData(JSON.parse(line)); } catch { }
         }
-    }).catch((err) => { if (err.name !== "AbortError") onError?.(err); });
+    }).catch((err) => { if (err.name !== "AbortError") onError?.(err.message || String(err)); });
     return () => controller.abort();
 }
 
-export const getStockData = (ticker) =>
-    fetch(`/api/stock/${ticker.toUpperCase()}`).then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to fetch stock");
-        return data;
-    });
+// Streams all of the session's portfolios; backend sends every portfolio
+// on this connection, there is no per-portfolio filtering.
+export function subscribePortfolios(session_id, onData, onError) {
+    return streamNdjson(`${BASE}/portfolios?session_id=${session_id}`, onData, onError);
+}
+
+// Streams live quote updates for a single ticker.
+export function subscribeQuote(ticker, onData, onError) {
+    return streamNdjson(`${BASE}/quote?ticker=${ticker}`, onData, onError);
+}

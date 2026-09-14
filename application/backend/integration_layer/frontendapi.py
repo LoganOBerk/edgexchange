@@ -2,7 +2,6 @@ import asyncio
 import json
 from typing import AsyncGenerator
 
-from common.constants import PRICE_REFRESH_INTERVAL
 from common.errors import ValidationError
 from .routes import connect
 
@@ -120,14 +119,21 @@ class FrontendApi:
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.quote() fields
     # RAISES:
     #   -ValidationError; see Validator.stock_validator() POSTCONDITION
-    def quote(self, ticker : str):
+    def make_quote_stream(self, ticker : str):
+        QUOTE_REFRESH_INTERVAL = 3
+
         ticker = self.san.sanitize_ticker(ticker)
 
         result = self.validator.stock_validator(ticker)
         if not result.valid:
             raise ValidationError(result.reason)
 
-        return self.serv.quote(ticker)
+        async def stream():
+            while True:
+                yield json.dumps(self.serv.quote(ticker))
+                await asyncio.sleep(QUOTE_REFRESH_INTERVAL)
+
+        return stream()
 
 
     # INPUT:
@@ -140,6 +146,8 @@ class FrontendApi:
     #   -return; yields JSON serialized portfolio data every second until client disconnects
     # RAISES: None
     def make_portfolio_stream(self, portfolios) -> AsyncGenerator:
+        PRICE_REFRESH_INTERVAL = 4
+
         async def stream():
             while True:
               

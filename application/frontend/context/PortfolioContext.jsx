@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useRef, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
+import { subscribePortfolios } from "@/lib/api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const CACHE_KEY = "edgexchange_live_data_v2";
 
 const fmt = (n) => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -27,7 +27,7 @@ export const usePortfolio = () => {
 };
 
 export const PortfolioProvider = ({ children }) => {
-    const { sessionId, user } = useSession();
+    const { sessionId, user, logout } = useSession();
     const [liveData, setLiveData] = useState({});
 
     useEffect(() => {
@@ -38,45 +38,37 @@ export const PortfolioProvider = ({ children }) => {
         const portfolioNames = Object.keys(user?.portfolios ?? {});
         if (!sessionId || !portfolioNames.length) return;
 
-        const controller = new AbortController();
-        const url = `${BASE_URL}/live_data?session_id=${sessionId}`;
-
-        fetch(url, { signal: controller.signal })
-            .then(async (res) => {
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    for (const line of decoder.decode(value).trim().split("\n")) {
-                        if (!line) continue;
-                        try {
-                            const parsed = JSON.parse(line);
-                            for (const entry of parsed.portfolios ?? []) {
-                                if (!entry.portfolio) continue;
-                                setLiveData((prev) => {
-                                    const next = {
-                                        ...prev,
-                                        [entry.portfolio]: {
-                                            total: `$${fmt(entry.total)}`,
-                                            holdings: entry.stocks,
-                                        },
-                                    };
-                                    writeCache(next);
-                                    return next;
-                                });
-                            }
-                        } catch { }
-                    }
+        const unsubscribe = subscribePortfolios(
+            sessionId,
+            (parsed) => {
+                for (const entry of parsed.portfolios ?? []) {
+                    if (!entry.portfolio) continue;
+                    setLiveData((prev) => {
+                        const next = {
+                            ...prev,
+                            [entry.portfolio]: {
+                                total: `$${fmt(entry.total)}`,
+                                holdings: entry.stocks,
+                            },
+                        };
+                        writeCache(next);
+                        return next;
+                    });
                 }
-            })
-            .catch((err) => {
-                if (err.name !== "AbortError") console.error("Stream error", err);
-            });
+            },
+            (err) => {
+                // An expired/invalid session is expected once the backend
+                // restarts or the session times out - treat it as a normal
+                // "please log in again" state, not a console error.
+                if (err === "Invalid session") {
+                    logout();
+                    return;
+                }
+                console.error("Portfolio stream error", err);
+            }
+        );
 
-        return () => controller.abort();
+        return unsubscribe;
     }, [sessionId, Object.keys(user?.portfolios ?? {}).join(",")]);
 
     return (

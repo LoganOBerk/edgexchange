@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backend_bases import CloseEvent
 import pandas as pd
 from tabulate import tabulate
-from common.constants import PRICE_REFRESH_INTERVAL
 
 # PURPOSE:
 #   -Visualizer provides a data visualization abstraction
@@ -25,6 +24,8 @@ class Visualizer:
     #   -execution; chart display does not block program
     # RAISES: None
     def display_pie_chart(self, package_portfolio_data : callable) -> None:
+        PRICE_REFRESH_INTERVAL = 4000
+
         if self.fig is None and package_portfolio_data()["portfolios"][0]["stocks"]:
             self.fig, self.ax = plt.subplots()
             self.fig.canvas.mpl_connect('close_event', self.clean_up)
@@ -46,7 +47,7 @@ class Visualizer:
                 self.ax.set_title(f"Portfolio Distribution")
                 self.ax.set_xlabel(f"Total portfolio value: ${portfolio["total"]:,.2f}")
 
-            self.ani = animation.FuncAnimation(self.fig, update, interval= PRICE_REFRESH_INTERVAL*1000, cache_frame_data=False)
+            self.ani = animation.FuncAnimation(self.fig, update, interval= PRICE_REFRESH_INTERVAL, cache_frame_data=False)
             plt.show(block=False)    
 
 

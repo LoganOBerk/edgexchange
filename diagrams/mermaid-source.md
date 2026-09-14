@@ -10,8 +10,8 @@ flowchart TB
     D -- Frontend --> F["FrontendApi"]
     F --> E
     E --> G
-    G --> H["Service"] & LC["LiveCache"]
-    H --> DOM["Domain Models"] & I[("Database")] & LC
+    G --> H["Service"]
+    H --> DOM["Domain Models"] & I[("Database")] & LC["LiveCache"]
     LC --> EXT["External API"]
 
     style A fill:#F1EFE8,stroke:#888780,color:#444441
@@ -43,8 +43,7 @@ flowchart TB
     linkStyle 12 stroke:#FF6D00,fill:none
     linkStyle 13 stroke:#FF6D00,fill:none
     linkStyle 14 stroke:#FF6D00,fill:none
-    linkStyle 15 stroke:#FF6D00,fill:none
-    linkStyle 16 stroke:#FF6D00
+    linkStyle 15 stroke:#FF6D00
 
 # Database Architecture
 erDiagram
