@@ -4,12 +4,12 @@ from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
 from domain_models import User, Portfolio, Stock
 from integration_layer import LiveCache as lcac
-from persistence_layer import StoredAccountData, StoredUser
+from persistence_layer import StoredAccount, StoredUser
 
 
 
 # INPUT:
-#   -stored_data(StoredAccountData); all data related to user account
+#   -stored_data(StoredAccount); all data related to user account
 # OUTPUT:
 #   -user(User); a fully populated user object
 # PRECONDITION:
@@ -17,7 +17,7 @@ from persistence_layer import StoredAccountData, StoredUser
 # POSTCONDITION:
 #   -user; populated with id, username, balance, all portfolios and their stocks from database
 # RAISES: None
-def build_account(stored_data : StoredAccountData) -> User:
+def build_account(stored_data : StoredAccount) -> User:
     user = stored_data.user
     portfolios = stored_data.portfolios
     stocks = stored_data.stocks

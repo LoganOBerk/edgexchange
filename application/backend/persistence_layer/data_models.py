@@ -32,28 +32,36 @@ class StoredStock(NamedTuple):
 
 
 # PURPOSE:
-#   -StoredAccount provides an abstraction for raw account data
-#   -defines a clean name accessable shape of account related data
-class StoredAccount(NamedTuple):
+#   -AccountStub provides an abstraction for the account field declaration
+#   -exists so StoredAccount can keep NamedTuple's behavior with custom construction
+class AccountStub(NamedTuple):
     user : StoredUser
     portfolios : list[StoredPortfolio]
-    stocks : dict[int, StoredStock]
+    stocks : dict[int, list[StoredStock]]
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        if cls.__annotations__ != AccountStub.__annotations__:
+            raise TypeError(
+                f"{cls.__name__} fields have drifted from AccountStub: "
+                f"{AccountStub.__annotations__} != {cls.__annotations__}"
+            )
 
 
 # PURPOSE:
-#   -StoredAccountData provides an abstraction for StoredAccount formatting
-#   -initializes StoredAccountData as a StoredAccount with grouped stocks for easy access
-class StoredAccountData(StoredAccount):
+#   -StoredAccount provides an abstraction for raw account data
+#   -initializes StoredAccount as an AccountStub with grouped stocks for easy access
+class StoredAccount(AccountStub):
+    user : StoredUser
+    portfolios : list[StoredPortfolio]
+    stocks : dict[int, list[StoredStock]]
+
     @staticmethod
     def group(holdings):
         stocks = defaultdict(list)
         for stock in holdings:
             stocks[stock.p_id].append(stock)
-
         return stocks
-    
-    def __new__(cls, user, portfolios, holdings):    
-        return super().__new__(cls, user = user, portfolios = portfolios, stocks = cls.group(holdings))
 
-    
-        
+    def __new__(cls, user, portfolios, holdings):
+        return super().__new__(cls, user = user, portfolios = portfolios, stocks = cls.group(holdings))

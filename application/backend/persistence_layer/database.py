@@ -3,7 +3,7 @@ from sqlite3 import Error as SqliteError
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
-from .data_models import StoredUser, StoredPortfolio, StoredStock, StoredAccountData
+from .data_models import StoredAccount, StoredUser, StoredPortfolio, StoredStock
 
 
 # PURPOSE: 
@@ -374,7 +374,7 @@ class Database:
     # INPUT:
     #   -username(str); user username
     # OUTPUT:
-    #   -account_data(StoredAccountData); respective users stored information see hydrator for details
+    #   -account_data(StoredAccount); respective users stored information
     # PRECONDITION:
     #   -username; a user with this username exists in the database
     # POSTCONDITION:
@@ -385,7 +385,7 @@ class Database:
         stored_portfolios = self.pull_portfolios(stored_user.id)
         stored_stocks = self.pull_stocks(stored_user.id)
 
-        account_data = StoredAccountData(*(stored_user, stored_portfolios, stored_stocks))
+        account_data = StoredAccount(*(stored_user, stored_portfolios, stored_stocks))
         
         return account_data
 
