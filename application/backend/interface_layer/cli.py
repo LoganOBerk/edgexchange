@@ -1,16 +1,31 @@
-from common.errors import ServiceError
+from .visualizer import Visualizer
+from common.errors import ValidationError
+from integration_layer import Api
+
+# INPUT:
+#   -selection(str); a selection input
+# OUTPUT:
+#   -selection(int); a integer representation of selection, otherwise None
+# PRECONDITION: None
+# POSTCONDITION:
+#   -selection; converted to a integer, if non numeric -1
+# RAISES: None
+def clean_selection(selection : str) -> int | None:
+        try:
+            selection = int(selection)
+        except Exception:
+            selection = -1
+
+        return selection
 
 
 # PURPOSE: 
 #   -Cli provides a user interaction abstraction
 #   -Handles all user interaction and enforces program control flow
 class Cli:
-    def __init__(self, service, sanitizer, validator, visualizer):
+    def __init__(self, service, sanitizer, validator):
         self.user_account = None
-        self.serv = service
-        self.validator = validator
-        self.vis = visualizer
-        self.san = sanitizer
+        self.api = Api(service, sanitizer, validator)
 
 
     # INPUT: None
@@ -43,14 +58,14 @@ class Cli:
             print("3. Exit application")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
                 self.display_account_credential_gatherer(new=True)
             elif selection == 2:
                 self.display_account_credential_gatherer(new=False)
             elif selection == 3:
-                self.serv.exit_app()
+                self.api.exit_app()
             else:
                 print('Invalid selection!')
 
@@ -74,36 +89,24 @@ class Cli:
         print(f"---------------{'------' if new else '-----'}---------------\n")
 
         creds = username, password
-        creds = self.san.sanitize_credentials(creds)
-
-        result = self.validator.account_validator(creds, new)
-            
-
         while True:
             print("1. Confirm")
             print("2. Cancel")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
-
-                if not result.valid:
-                    print(result.reason)
-                    return
-
                 try:
 
                     if new:
-                        self.user_account = self.serv.create_account(creds)
+                        self.user_account = self.api.create_account(creds)
                     else:
-                        self.user_account = self.serv.find_account(username)
+                        self.user_account = self.api.find_account(creds)
 
-                    print(result.reason)    
-
-                except ServiceError as e:
-                    print(f"ERROR: {e}")
-                    continue
+                except ValidationError as e:
+                    print(e)
+                    return
                     
             elif selection != 2:
                 print("Invalid selection!")
@@ -138,7 +141,7 @@ class Cli:
             print(f"{num_portfolios + 5}. Exit application")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if 0 < selection <= num_portfolios:
                 r = self.display_portfolio_contents(portfolio_list[selection - 1])
@@ -153,7 +156,7 @@ class Cli:
             elif selection == num_portfolios + 4:
                 return
             elif selection == num_portfolios + 5:
-                self.serv.exit_app()
+                self.api.exit_app()
             else:
                 print('Invalid selection!')
                 
@@ -172,31 +175,22 @@ class Cli:
 
         funds_request = input("Enter amount: "); print()
 
-        funds_request = self.san.sanitize_funds_request(funds_request)
-    
-        result = self.validator.fund_validator(funds_request)
-
         while True:
             print("1. Confirm")
             print("2. Cancel")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
-
-                if not result.valid:
-                    print(result.reason)
-                    return
-
                 try:
 
-                    self.serv.fund_account(user_account, funds_request)
-                    print(result.reason)
-
-                except ServiceError as e:
-                    print(f"ERROR: {e}")
-                    continue
+                    self.api.fund_account(user_account, funds_request)
+        
+                except ValidationError as e:
+                    print(e)
+                    return
+                
             elif selection != 2:
                 print("Invalid selection!")
                 continue
@@ -218,39 +212,29 @@ class Cli:
     def display_portfolio_modification_menu(self, user_account, create : bool) -> None:
         print("-------------- Portfolio Modification Menu ------------------")
 
-        name_request = input("Enter portfolio name: ").strip()
-        name_request = self.san.sanitize_portfolio_name(name_request)
-
-        result = self.validator.portfolio_validator(user_account, name_request, create)
+        name_request = input("Enter portfolio name: ")
 
         while True:
             print("1. Confirm")
             print("2. Cancel")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
-
-                if not result.valid:
-                    print(result.reason)
-                    return
 
                 try:
 
                     if create:
-                        self.serv.create_portfolio(user_account, name_request)
+                        self.api.create_portfolio(user_account, name_request)
                     else:
-                        self.serv.remove_portfolio(user_account, name_request)
+                        self.api.remove_portfolio(user_account, name_request)
 
-                    print(result.reason)
-
-                except ServiceError as e:
-                    print(f"ERROR: {e}")
-                    continue
+                except ValidationError as e:
+                    print(e)
+                    return
 
             elif selection != 2:
-                # TODO: invalid selection error msg
                 print("Invalid selection!")
                 continue
 
@@ -267,16 +251,15 @@ class Cli:
     #   -Cli; navigates to stock transaction menu (buy/sell), returns on back, returns "logout" on logout, or exits
     # RAISES: None
     def display_portfolio_contents(self, portfolio) -> str | None:
-        
-
+        vis = Visualizer()
         while True:
             title = f"-------------------{portfolio.name}-------------------"
             print(title)
 
-            table = self.vis.construct_stock_table(portfolio, len(title))
+            table = vis.construct_stock_table(portfolio, len(title))
             print(table)
 
-            self.vis.display_pie_chart(lambda: self.serv.package_portfolio_data([portfolio]))
+            vis.display_pie_chart(lambda: self.api.package_portfolio_data([portfolio]))
 
             print("1. Buy Stock")
             print("2. Sell Stock")
@@ -285,20 +268,20 @@ class Cli:
             print("5. Exit application")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
                 self.display_stock_transaction_menu(portfolio, purchase=True)
             elif selection == 2:
                 self.display_stock_transaction_menu(portfolio, purchase=False)
             elif selection == 3:
-                self.vis.close_chart()
+                vis.close_chart()
                 return
             elif selection == 4:
-                self.vis.close_chart()
+                vis.close_chart()
                 return "logout"
             elif selection == 5:
-                self.serv.exit_app()
+                self.api.exit_app()
             else:
                 print("Invalid Selection!")
            
@@ -322,35 +305,24 @@ class Cli:
         quantity = input(f"Enter number of shares to {'buy' if purchase else 'sell'}: "); print()
             
         shares_request = ticker, quantity
-        shares_request = self.san.sanitize_shares_request(shares_request)
-
-        result = self.validator.shares_request_validator(portfolio, shares_request, self.user_account.balance, purchase)
-            
         while True:
             print("1. Confirm")
             print("2. Cancel")
             selection = input("Select option: "); print()
 
-            selection = self.san.sanitize_selection(selection)
+            selection = clean_selection(selection)
 
             if selection == 1:
-
-                if not result.valid:
-                    print(result.reason)
-                    return
-
                 try:
 
                     if purchase:
-                        self.serv.execute_buy(self.user_account, portfolio, shares_request)
+                        self.api.execute_buy(self.user_account, portfolio, shares_request)
                     else:
-                        self.serv.execute_sell(self.user_account, portfolio, shares_request)
+                        self.api.execute_sell(self.user_account, portfolio, shares_request)
 
-                    print(result.reason)
-
-                except ServiceError as e:
-                    print(f"ERROR: {e}")
-                    continue
+                except ValidationError as e:
+                    print(e)
+                    return
 
             elif selection != 2:
                 print("Invalid selection!")

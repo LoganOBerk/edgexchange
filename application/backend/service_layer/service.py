@@ -1,5 +1,3 @@
-import sys
-
 from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
 from domain_models import User, Portfolio, Stock
@@ -367,17 +365,6 @@ class Service:
 
         return packaged_data
 
-    
-    # INPUT: None
-    # OUTPUT: None
-    # PRECONDITION: None
-    # POSTCONDITION: None
-    #   -execution; program execution is terminated
-    # RAISES:   
-    #   -SystemExit; always raised on call
-    @staticmethod
-    def exit_app() -> None:
-        sys.exit(0)
 
 
 

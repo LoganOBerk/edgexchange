@@ -1,5 +1,5 @@
 from .externalapi import ExternalApi
-from .frontendapi import FrontendApi
+from .api import Api
 from .livecache import LiveCache
 from .routes import router, connect
 

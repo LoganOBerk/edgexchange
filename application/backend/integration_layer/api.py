@@ -1,5 +1,7 @@
-import asyncio
+import sys
 import json
+import asyncio
+
 from typing import AsyncGenerator
 
 from common.errors import ValidationError
@@ -7,9 +9,9 @@ from .routes import connect
 
 
 # PURPOSE:
-#   -FrontendApi provides a user operation abstraction
+#   -Api provides a user operation abstraction
 #   -This abstraction is provided to enforce function contracts on POST or GET request
-class FrontendApi:
+class Api:
     def __init__(self, service, sanitizer, validator):
         self.serv = service
         self.validator = validator
@@ -19,6 +21,11 @@ class FrontendApi:
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective .routes connect() fields
     def link_routes(self):
         connect(self)
+
+
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.package_portfolio_data() fields
+    def package_portfolio_data(self, portfolios):
+        return self.serv.package_portfolio_data(portfolios)
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.create_account() fields
@@ -134,8 +141,8 @@ class FrontendApi:
                 await asyncio.sleep(QUOTE_REFRESH_INTERVAL)
 
         return stream()
-
-
+    
+    
     # INPUT:
     #   -portfolios(list[Portfolio]); a current user portfolio
     # OUTPUT:
@@ -151,7 +158,7 @@ class FrontendApi:
         async def stream():
             while True:
               
-                data = self.serv.package_portfolio_data(portfolios)
+                data = self.package_portfolio_data(portfolios)
 
                 if data:
                     yield json.dumps(data) + "\n"
@@ -160,6 +167,17 @@ class FrontendApi:
             
         return stream()
 
+
+    # INPUT: None
+    # OUTPUT: None
+    # PRECONDITION: None
+    # POSTCONDITION: None
+    #   -execution; program execution is terminated
+    # RAISES:   
+    #   -SystemExit; always raised on call
+    @staticmethod
+    def exit_app() -> None:
+        sys.exit(0)
 
 
 

@@ -122,19 +122,4 @@ class Sanitizer:
         return shares_request
 
 
-    # INPUT:
-    #   -selection(str); a selection input
-    # OUTPUT:
-    #   -selection(int); a integer representation of selection, otherwise None
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -selection; converted to a integer, if non numeric -1
-    # RAISES: None
-    @staticmethod
-    def sanitize_selection(selection : str) -> int | None:
-         try:
-            selection = int(selection)
-         except Exception:
-            selection = -1
-
-         return selection
+    

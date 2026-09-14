@@ -45,8 +45,7 @@ class App:
         if frontend:
             self.display = Frontend(self.serv, self.san, self.val)
         else:
-            self.vis = Visualizer()
-            self.display = Cli(self.serv, self.san, self.val, self.vis)
+            self.display = Cli(self.serv, self.san, self.val)
 
 
 

@@ -10,7 +10,7 @@ from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest,
 from .pydantic_models.responses import UserData, PortfolioData
 
 
-frontend_api = None
+api = None
 router = APIRouter()
 
 active_sessions : dict[str, int] = {}
@@ -34,16 +34,16 @@ def cached(u_id : int) -> bool:
 
 
 # INPUT:
-#   -api(FrontendApi); functional interface
+#   -interface(Api); functional interface
 # OUTPUT: None
 # PRECONDITION:
-#   -api; fully constructed FrontendApi instance
+#   -interface; fully constructed Api instance
 # POSTCONDITION:
-#   -frontend_api; passed api is assigned to global module memory
+#   -api; passed interface is assigned to global module memory
 # RAISES: None
-def connect(api) -> None:
-    global frontend_api
-    frontend_api = api
+def connect(interface) -> None:
+    global api
+    api = interface
 
 
 # INPUT: None
@@ -103,9 +103,9 @@ def find_sessions_user(session_id : str):
 #   -response(dict[str,str]); success confirmation sent to client
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods
+#   -api; contains control flow pipeline methods
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.create_account() POSTCONDITION
+#   -api; see Api.create_account() POSTCONDITION
 #   -response; contains key "message" with value "account created"
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, malformed credentials
@@ -117,7 +117,7 @@ def register(req : CredsRequest) -> dict[str, str]:
 
     try:
     
-        frontend_api.create_account(creds)
+        api.create_account(creds)
         
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -136,9 +136,9 @@ def register(req : CredsRequest) -> dict[str, str]:
 #   -response(dict[str,str|UserData]); session id and user data sent to client
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods
+#   -api; contains control flow pipeline methods
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.find_account() POSTCONDITION
+#   -api; see Api.find_account() POSTCONDITION
 #   -active_sessions; see start_session() POSTCONDITION
 #   -response; contains session_id and UserData for authenticated user
 # RAISES:
@@ -151,7 +151,7 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
 
     try:
 
-        user = frontend_api.find_account(creds)
+        user = api.find_account(creds)
 
         if cached(user.id):
             user = active_users.get(user.id) 
@@ -208,9 +208,9 @@ def logout(req : LogoutRequest) -> dict[str, str]:
 #   -response(dict[str,UserData]); user data JSON payload
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods
+#   -api; contains control flow pipeline methods
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.fund_account() POSTCONDITION
+#   -api; see Api.fund_account() POSTCONDITION
 #   -response; contains updated UserData
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid funds request
@@ -226,7 +226,7 @@ def fund(req : FundsRequest) -> dict[str, UserData]:
     try:
 
         with user.lock:
-            frontend_api.fund_account(user, req.funds_requested)
+            api.fund_account(user, req.funds_requested)
             response = {"user" : UserData.convert(user)}
     
     except ValidationError as e:
@@ -244,9 +244,9 @@ def fund(req : FundsRequest) -> dict[str, UserData]:
 #   -response(dict[str,UserData]); user data JSON payload 
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods 
+#   -api; contains control flow pipeline methods 
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.create_portfolio() POSTCONDITION
+#   -api; see Api.create_portfolio() POSTCONDITION
 #   -response; contains updated UserData
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid portfolio name
@@ -262,7 +262,7 @@ def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
     try:
         
         with user.lock:
-            frontend_api.create_portfolio(user, req.name)
+            api.create_portfolio(user, req.name)
             response = {"user" : UserData.convert(user)}
     
     except ValidationError as e:
@@ -280,9 +280,9 @@ def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 #   -response(dict[str,UserData]); user data JSON payload 
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods 
+#   -api; contains control flow pipeline methods 
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.remove_portfolio() POSTCONDITION
+#   -api; see Api.remove_portfolio() POSTCONDITION
 #   -response; contains updated UserData
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid portfolio name
@@ -298,7 +298,7 @@ def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
     try:
 
         with user.lock:
-            frontend_api.remove_portfolio(user, req.name)
+            api.remove_portfolio(user, req.name)
             response = {"user" : UserData.convert(user)}    
     
     except ValidationError as e:
@@ -316,9 +316,9 @@ def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 #   -response(dict[str,PortfolioData]); portfolio data JSON payload 
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods 
+#   -api; contains control flow pipeline methods 
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.execute_buy() POSTCONDITION
+#   -api; see Api.execute_buy() POSTCONDITION
 #   -response; contains updated PortfolioData
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid ticker, quantity or insufficient balance
@@ -343,7 +343,7 @@ def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
             if portfolio is None:
                 raise HTTPException(status_code = 404, detail = "Portfolio not found")
 
-            frontend_api.execute_buy(user, portfolio, shares_requested)
+            api.execute_buy(user, portfolio, shares_requested)
             response = {"portfolio" : PortfolioData.convert(portfolio)}
             
     except ValidationError as e:
@@ -361,9 +361,9 @@ def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
 #   -response(dict[str,PortfolioData]); portfolio data JSON payload 
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods 
+#   -api; contains control flow pipeline methods 
 # POSTCONDITION:
-#   -frontend_api; see FrontendApi.execute_sell() POSTCONDITION
+#   -api; see Api.execute_sell() POSTCONDITION
 #   -response; contains updated PortfolioData
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid ticker or quantity
@@ -386,7 +386,7 @@ def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
             if portfolio is None:
                 raise HTTPException(status_code = 404, detail = "Portfolio not found")
 
-            frontend_api.execute_sell(user, portfolio, shares_requested)
+            api.execute_sell(user, portfolio, shares_requested)
             response = {"portfolio" : PortfolioData.convert(portfolio)}
             
     except ValidationError as e:
@@ -406,7 +406,7 @@ def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
 #   -response(dict[str,UserData]); user data JSON payload 
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods 
+#   -api; contains control flow pipeline methods 
 # POSTCONDITION:
 #   -response; contains UserData for the requesting session
 # RAISES:
@@ -429,9 +429,9 @@ def get_user(session_id : str) -> dict[str, UserData]:
 #   -response(dict[str, dict]); stock quote JSON payload containing stock info fields
 # PRECONDITION:
 #   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods
+#   -api; contains control flow pipeline methods
 # POSTCONDITION:
-#   -response; contains detailed stock data for the requested ticker, check FrontendApi.quote()
+#   -response; contains detailed stock data for the requested ticker, check Api.quote()
 # RAISES:
 #   -HTTPException(400); a ValidationError is raised, invalid ticker
 #   -HTTPException(500); a ServiceError is raised, server side error
@@ -439,7 +439,7 @@ def get_user(session_id : str) -> dict[str, UserData]:
 async def get_quote(ticker : str) -> dict[str, dict]:
     try:
 
-        live_data = frontend_api.make_quote_stream(ticker)
+        live_data = api.make_quote_stream(ticker)
         
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -472,7 +472,7 @@ async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
     if not portfolios:
         raise HTTPException(status_code = 404, detail = "Portfolios not found")
     
-    live_data = frontend_api.make_portfolio_stream(portfolios)
+    live_data = api.make_portfolio_stream(portfolios)
 
     return StreamingResponse(live_data, media_type = "application/x-ndjson")
 

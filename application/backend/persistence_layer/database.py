@@ -97,8 +97,13 @@ class Database:
 
         except SqliteError as e:
             raise DatabaseError(f"pull_user failed: {e}") from e
-        
-        user_data = StoredUser(*cursor.fetchone())
+
+        row = cursor.fetchone()
+
+        if row:
+            user_data = StoredUser(*row)
+        else:
+            user_data = None
 
         return user_data
 
@@ -129,7 +134,12 @@ class Database:
         except SqliteError as e:
             raise DatabaseError(f"pull_portfolios failed: {e}") from e
 
-        user_portfolios = [StoredPortfolio(*portfolio_data) for portfolio_data in cursor.fetchall()]
+        rows = cursor.fetchall()
+
+        if rows:
+            user_portfolios = [StoredPortfolio(*row) for row in rows]
+        else:
+            user_portfolios = []
 
         return user_portfolios
 
@@ -161,7 +171,12 @@ class Database:
         except SqliteError as e:
             raise DatabaseError(f"pull_stocks failed: {e}") from e
 
-        user_stocks = [StoredStock(*stock_data) for stock_data in cursor.fetchall()]
+        rows = cursor.fetchall()
+
+        if rows:
+            user_stocks = [StoredStock(*row) for row in rows]
+        else:
+            user_stocks = []
 
         return user_stocks
 
@@ -380,7 +395,7 @@ class Database:
     # POSTCONDITION:
     #   -account_data; account data is populated with each data element, see Database.pull_user(), Database.pull_portfolios, and Database.pull_stocks() POSTCONDITIONS
     # RAISES: None
-    def pull_account(self, username : str) -> StoredAccountData:
+    def pull_account(self, username : str) -> StoredAccount:
         stored_user = self.pull_user(username)
         stored_portfolios = self.pull_portfolios(stored_user.id)
         stored_stocks = self.pull_stocks(stored_user.id)
