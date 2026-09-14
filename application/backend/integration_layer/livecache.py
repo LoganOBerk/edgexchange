@@ -270,17 +270,17 @@ class LiveCache:
         return price
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.check_existance()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.check_existence()
     # RAISES: 
-    #   -LiveCacheError; propagated from ExternalApi.check_existance()
+    #   -LiveCacheError; propagated from ExternalApi.check_existence()
     @staticmethod
-    def check_existance(ticker : str) -> bool:
+    def check_existence(ticker : str) -> bool:
         exist = True
 
         try:
 
             if ticker not in cache:
-                exist = eapi.check_existance(ticker)
+                exist = eapi.check_existence(ticker)
 
         except FetchingError as e:
             raise LiveCacheError("Ticker search failed") from e
