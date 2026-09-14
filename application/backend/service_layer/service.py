@@ -311,7 +311,7 @@ class Service:
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.get_quote()
     # RAISES: 
     #   -ServiceError; propagated from LiveCache.get_quote()
-    def quote(self, ticker : str):
+    def quote_stock(self, ticker : str):
         try:
         
             quote = lcac.get_quote(ticker)
