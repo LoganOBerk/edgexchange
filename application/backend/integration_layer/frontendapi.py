@@ -130,7 +130,7 @@ class FrontendApi:
 
         async def stream():
             while True:
-                yield json.dumps(self.serv.quote(ticker))
+                yield json.dumps(self.serv.quote_stock(ticker))
                 await asyncio.sleep(QUOTE_REFRESH_INTERVAL)
 
         return stream()
