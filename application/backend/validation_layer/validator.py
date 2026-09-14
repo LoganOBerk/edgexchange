@@ -124,7 +124,7 @@ class Validator:
             if not re.fullmatch(r"[A-Z]{1,5}", ticker):
                 return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
 
-            if not self.serv.field_existance(ticker):
+            if not self.serv.field_existence(ticker):
                 return Result(False, "This stock does not exist on the open market.\n")
                 
             return Result(True, "")
@@ -157,7 +157,7 @@ class Validator:
             if not re.fullmatch(r"[A-Z]{1,5}", ticker):
                 return Result(False, "Ticker symbols must be capital and 1-5 characters.\n")
 
-            if purchase and not self.serv.check_existance(ticker):
+            if purchase and not self.serv.field_existence(ticker):
                 return Result(False, "This stock does not exist on the open market.\n")
                 
             if not purchase and ticker not in portfolio.stocks:
