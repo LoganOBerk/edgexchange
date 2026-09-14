@@ -424,6 +424,35 @@ def get_user(session_id : str) -> dict[str, UserData]:
 
 
 # INPUT:
+#   -ticker(str); a stock ticker symbol
+# OUTPUT:
+#   -response(dict[str, dict]); stock quote JSON payload containing stock info fields
+# PRECONDITION:
+#   -router; exists as a valid router
+#   -frontend_api; contains control flow pipeline methods
+# POSTCONDITION:
+#   -response; contains detailed stock data for the requested ticker, check FrontendApi.quote()
+# RAISES:
+#   -HTTPException(400); a ValidationError is raised, invalid ticker
+#   -HTTPException(500); a ServiceError is raised, server side error
+@router.get("/quote")
+def get_quote(ticker : str) -> dict[str, dict]:
+    try:
+
+        quote = frontend_api.quote(ticker)
+        response = {"quote" : quote}
+        
+    except ValidationError as e:
+        raise HTTPException(status_code = 400, detail = str(e))
+
+    except ServiceError as e:
+        raise HTTPException(status_code = 500, detail = str(e))
+
+   
+    return response
+
+
+# INPUT:
 #   -session_id(str); a session id
 # OUTPUT:
 #   -return(StreamingResponse); a streaming response object
@@ -445,35 +474,7 @@ async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
     if not portfolios:
         raise HTTPException(status_code = 404, detail = "Portfolios not found")
     
-    live_data = frontend_api.make_data_stream(portfolios)
+    live_data = frontend_api.make_portfolio_stream(portfolios)
 
     return StreamingResponse(live_data, media_type = "application/x-ndjson")
 
-
-# INPUT:
-#   -ticker(str); a stock ticker symbol
-# OUTPUT:
-#   -response(dict[str, dict]); stock quote JSON payload containing stock info fields
-# PRECONDITION:
-#   -router; exists as a valid router
-#   -frontend_api; contains control flow pipeline methods
-# POSTCONDITION:
-#   -response; contains detailed stock data for the requested ticker, check FrontendApi.quote_stock()
-# RAISES:
-#   -HTTPException(400); a ValidationError is raised, invalid ticker
-#   -HTTPException(500); a ServiceError is raised, server side error
-@router.get("/quote")
-def get_quote(ticker : str) -> dict[str, dict]:
-    try:
-
-        quote_info = frontend_api.quote_stock(ticker)
-        response = {"quote" : quote_info}
-        
-    except ValidationError as e:
-        raise HTTPException(status_code = 400, detail = str(e))
-
-    except ServiceError as e:
-        raise HTTPException(status_code = 500, detail = str(e))
-
-   
-    return response

@@ -44,7 +44,7 @@ class Validator:
         if username == '' and (password == '' or password.isspace()):
             return Result(False, "No credentials entered.\n")
 
-        stored_user = self.serv.identify_user(username)
+        stored_user = self.serv.resolve_user(username)
         account_exists = stored_user is not None
 
         if account_exists:
@@ -183,7 +183,7 @@ class Validator:
 
         #Validate Balance
         if purchase: 
-            price = lcac.get_stock_price(ticker)
+            price = lcac.get_price(ticker)
             total_cost = price * quantity
 
             if balance < total_cost:

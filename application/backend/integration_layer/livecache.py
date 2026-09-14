@@ -180,7 +180,7 @@ def quote_runner():
 
     try:
 
-        fetched_quotes = eapi.get_stock_quotes(pending_quotes)
+        fetched_quotes = eapi.get_quotes(pending_quotes)
 
     except FetchingError as e:
         with cache_lock:
@@ -211,7 +211,7 @@ def price_runner():
 
     try:
     
-        fetched_prices = eapi.get_stock_prices(pending_stocks)
+        fetched_prices = eapi.get_prices(pending_stocks)
     
     except FetchingError:
         pass
@@ -255,11 +255,11 @@ Thread(target = run, daemon = True).start()
 #   -allows system to store and re-access fresh stocks to reduce api calls 
 class LiveCache:
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_stock_price()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_price()
     # RAISES: 
-    #   -LiveCacheError; propagated from ExternalApi.get_stock_price()
+    #   -LiveCacheError; propagated from ExternalApi.get_price()
     @staticmethod
-    def get_stock_price(ticker : str) -> float:
+    def get_price(ticker : str) -> float:
         
         with cache_lock:
             touch([ticker])
@@ -323,11 +323,11 @@ class LiveCache:
         return sector
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_stock_quotes()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_quotes()
     # RAISES: 
-    #   -LiveCacheError; propagated from ExternalApi.get_stock_quotes()
+    #   -LiveCacheError; propagated from ExternalApi.get_quotes()
     @staticmethod
-    def get_stock_quote(ticker : str) -> dict[str, dict]:
+    def get_quote(ticker : str) -> dict[str, dict]:
         with cache_lock:
             touch([ticker])
             cache_lock.wait_for(lambda: read(ticker, "quote") is not None)
@@ -340,7 +340,7 @@ class LiveCache:
     # RAISES: 
     #   -LiveCacheError; propagated from ExternalApi.get_stock_prices()
     @staticmethod
-    def get_stock_prices(tickers : list[str]) -> dict[str, float]:
+    def get_prices(tickers : list[str]) -> dict[str, float]:
         
         ticker_package = {}
 

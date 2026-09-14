@@ -51,7 +51,7 @@ class Service:
     #   -user_dat; user information provided if username exists in database, None otherwise
     # RAISES:
     #   -ServiceError; database call fails
-    def identify_user(self, username : str) -> StoredUser:
+    def resolve_user(self, username : str) -> StoredUser:
         try:
 
             user_dat = self.db.pull_user(username)
@@ -60,6 +60,8 @@ class Service:
             raise ServiceError("Failed to match credentials") from e
 
         return user_dat
+
+
 
 
     # INPUT:
@@ -197,7 +199,7 @@ class Service:
 
             ticker, quantity = shares_request
 
-            price = lcac.get_stock_price(ticker)
+            price = lcac.get_price(ticker)
             total_cost = price * quantity
 
             s_id = None
@@ -240,7 +242,7 @@ class Service:
 
             ticker, quantity = shares_request
 
-            price = lcac.get_stock_price(ticker)
+            price = lcac.get_price(ticker)
             total_value = price * quantity
 
 
@@ -261,13 +263,13 @@ class Service:
         portfolio.sell_shares(shares_request)
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.get_stock_quote()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in LiveCache.get_quote()
     # RAISES: 
-    #   -ServiceError; propagated from LiveCache.get_stock_quote()
-    def quote_stock(self, ticker : str):
+    #   -ServiceError; propagated from LiveCache.get_quote()
+    def quote(self, ticker : str):
         try:
 
-            quote = lcac.get_stock_quote(ticker)
+            quote = lcac.get_quote(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to get stock info") from e
@@ -286,34 +288,33 @@ class Service:
     def package_portfolio_data(self, portfolios: list[Portfolio]) -> dict[str, list[dict]]:
 
         packaged_data = {}
-        holdings = []
+        holdings = set()
 
         try:
             
-            for portfolio in portfolios: holdings.extend(list(portfolio.stocks.keys()))
+            for portfolio in portfolios: holdings.update(portfolio.stocks.keys())
 
-            prices = lcac.get_stock_prices(holdings)
+            prices = lcac.get_prices(holdings)
 
             packaged_data["portfolios"] = []
             for portfolio in portfolios:
                 total = 0
-                entry = {"portfolio": portfolio.name, "total": "$0.00", "holdings": []}
+                entry = {"portfolio": portfolio.name, "total": total, "stocks": []}
 
                 for ticker, stock in portfolio.stocks.items():
                     price = prices[ticker]
                     value = stock.quantity * price
                     total += value
 
-                    entry["holdings"].append({
+                    entry["stocks"].append({
                         "ticker": ticker,
                         "price": price,
                         "quantity": stock.quantity,
                         "value": value,
                         "sector": lcac.get_sector(ticker),
-                        "label": f"{ticker} (${value:,.2f})"
                     })
 
-                entry["total"] = f"${total:,.2f}"
+                entry["total"] = total
                 packaged_data["portfolios"].append(entry)
 
         except LiveCacheError as e:

@@ -4,7 +4,9 @@ import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const CACHE_KEY = "edgexchange_live_data";
+const CACHE_KEY = "edgexchange_live_data_v2";
+
+const fmt = (n) => Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const readCache = () => {
     try { return JSON.parse(localStorage.getItem(CACHE_KEY)) ?? {}; }
@@ -55,7 +57,13 @@ export const PortfolioProvider = ({ children }) => {
                             for (const entry of parsed.portfolios ?? []) {
                                 if (!entry.portfolio) continue;
                                 setLiveData((prev) => {
-                                    const next = { ...prev, [entry.portfolio]: entry };
+                                    const next = {
+                                        ...prev,
+                                        [entry.portfolio]: {
+                                            total: `$${fmt(entry.total)}`,
+                                            holdings: entry.stocks,
+                                        },
+                                    };
                                     writeCache(next);
                                     return next;
                                 });

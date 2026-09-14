@@ -117,17 +117,17 @@ class FrontendApi:
         return self.serv.execute_sell(user_account, portfolio, shares_request)
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.quote_stock() fields
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.quote() fields
     # RAISES:
     #   -ValidationError; see Validator.stock_validator() POSTCONDITION
-    def quote_stock(self, ticker : str):
+    def quote(self, ticker : str):
         ticker = self.san.sanitize_ticker(ticker)
 
         result = self.validator.stock_validator(ticker)
         if not result.valid:
             raise ValidationError(result.reason)
 
-        return self.serv.quote_stock(ticker)
+        return self.serv.quote(ticker)
 
 
     # INPUT:
@@ -139,7 +139,7 @@ class FrontendApi:
     # POSTCONDITION:
     #   -return; yields JSON serialized portfolio data every second until client disconnects
     # RAISES: None
-    def make_data_stream(self, portfolios) -> AsyncGenerator:
+    def make_portfolio_stream(self, portfolios) -> AsyncGenerator:
         async def stream():
             while True:
               

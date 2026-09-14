@@ -9,19 +9,27 @@ const SessionContext = createContext(null);
 const isTesting = process.env.NEXT_PUBLIC_TESTING === "true";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+const USER_CACHE_KEY = "user_v2";
+
 const store = {
     set: (k, v) => !isTesting && localStorage.setItem(k, v),
     get: (k) => (isTesting ? null : localStorage.getItem(k)),
     remove: (k) => !isTesting && localStorage.removeItem(k),
 };
 
+const isValidUser = (u) =>
+    u && typeof u === "object" && typeof u.username === "string" && typeof u.portfolios === "object";
+
 const getCachedUser = () => {
-    try { return JSON.parse(store.get("user")); }
-    catch { return null; }
+    try {
+        const parsed = JSON.parse(store.get(USER_CACHE_KEY));
+        return isValidUser(parsed) ? parsed : null;
+    } catch { return null; }
 };
 
 const clearSession = () => {
-    ["session_id", "user"].forEach(store.remove);
+    store.remove("session_id");
+    store.remove(USER_CACHE_KEY);
     document.cookie =
         "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 };
@@ -82,7 +90,7 @@ export function SessionProvider({ children }) {
                 }
 
                 setUser(data.user);
-                store.set("user", JSON.stringify(data.user));
+                store.set(USER_CACHE_KEY, JSON.stringify(data.user));
                 setReady(true);
             })
             .catch((err) => {
@@ -103,7 +111,7 @@ export function SessionProvider({ children }) {
         setUser(user);
 
         store.set("session_id", id);
-        store.set("user", JSON.stringify(user));
+        store.set(USER_CACHE_KEY, JSON.stringify(user));
 
         setSessionCookie(id);
     };
@@ -135,7 +143,7 @@ export function SessionProvider({ children }) {
 
     const refreshUser = (updatedUser) => {
         setUser(updatedUser);
-        store.set("user", JSON.stringify(updatedUser));
+        store.set(USER_CACHE_KEY, JSON.stringify(updatedUser));
     };
 
     return (

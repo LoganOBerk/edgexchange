@@ -77,7 +77,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails at any point
     @staticmethod
-    def get_stock_prices(tickers : set[str]) -> dict[str, float]:
+    def get_prices(tickers : set[str]) -> dict[str, float]:
 
         ticker_package = {}
 
@@ -128,7 +128,7 @@ class ExternalApi:
     # RAISES:
     #   -FetchingError; if yfinance call fails or ticker has no price history
     @staticmethod
-    def get_stock_quotes(tickers : set[str]) -> dict[str, dict]:
+    def get_quotes(tickers : set[str]) -> dict[str, dict]:
         
         stock_quotes = {}
 

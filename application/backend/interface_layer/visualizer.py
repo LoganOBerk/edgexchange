@@ -25,7 +25,7 @@ class Visualizer:
     #   -execution; chart display does not block program
     # RAISES: None
     def display_pie_chart(self, package_portfolio_data : callable) -> None:
-        if self.fig is None and package_portfolio_data()["portfolios"][0]["holdings"]:
+        if self.fig is None and package_portfolio_data()["portfolios"][0]["stocks"]:
             self.fig, self.ax = plt.subplots()
             self.fig.canvas.mpl_connect('close_event', self.clean_up)
 
@@ -35,13 +35,16 @@ class Visualizer:
 
                 self.ax.clear()
 
-                if not portfolio["holdings"]:
+                if not portfolio["stocks"]:
                     return
 
-                df = pd.DataFrame(portfolio["holdings"])
-                self.ax.pie(df['value'], labels=df['label'], autopct='%1.0f%%')
+                df = pd.DataFrame(portfolio["stocks"])
+
+                labels = df['ticker'] + ' (' + df['value'].map('${:,.2f}'.format) + ')'
+
+                self.ax.pie(df['value'], labels=labels, autopct='%1.0f%%')
                 self.ax.set_title(f"Portfolio Distribution")
-                self.ax.set_xlabel(f"Total portfolio value: {portfolio["total"]}")
+                self.ax.set_xlabel(f"Total portfolio value: ${portfolio["total"]:,.2f}")
 
             self.ani = animation.FuncAnimation(self.fig, update, interval= PRICE_REFRESH_INTERVAL*1000, cache_frame_data=False)
             plt.show(block=False)    
