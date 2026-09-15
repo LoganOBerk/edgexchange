@@ -72,12 +72,12 @@ class Service:
     def field_float(ticker : str) -> int:
         try:
                 
-            float = lcac.get_float(ticker)
+            max_shares = lcac.get_float(ticker)
 
         except LiveCacheError as e:
-            raise ServiceError("Failed to field a float share number") from e
+            raise ServiceError("Failed to field a max share number") from e
 
-        return float
+        return max_shares
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in Database.pull_user()
