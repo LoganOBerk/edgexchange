@@ -116,7 +116,11 @@ uv run edgexchange -s -v 5
 Core feature pipelines with traversal through layers and main method calls excluding helper functions.
 
 
-<table>
+
+<div style="overflow-x: auto;">
+
+<table style="min-width: 1400px;">
+
 <tr>
 <td align="center" width="20%"><strong>Create Account</strong></td>
 <td align="center" width="20%"><strong>Find Account</strong></td>
@@ -124,39 +128,61 @@ Core feature pipelines with traversal through layers and main method calls exclu
 <td align="center" width="20%"><strong>Create / Remove Portfolio</strong></td>
 <td align="center" width="20%"><strong>Execute Buy / Sell</strong></td>
 </tr>
+
 <tr>
+
 <td align="center">
+<a href="diagrams/system-pipelines-create-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
   <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe" width="100%">
 </picture>
+</a>
 </td>
+
 <td align="center">
+<a href="diagrams/system-pipelines-find-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
   <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe" width="100%">
 </picture>
+</a>
 </td>
+
 <td align="center">
+<a href="diagrams/system-pipelines-fund-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
   <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe" width="100%">
 </picture>
+</a>
 </td>
+
 <td align="center">
+<a href="diagrams/system-pipelines-create_or_remove-portfolio.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
   <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe" width="100%">
 </picture>
+</a>
 </td>
+
 <td align="center">
+<a href="diagrams/system-pipelines-execute_buy_or_sell.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
   <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe" width="100%">
 </picture>
+</a>
 </td>
+
 </tr>
+
 </table>
+
+</div>
+
+
 
 ## Program Documentation Guidelines
 
