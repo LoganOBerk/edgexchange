@@ -117,13 +117,16 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 
 
-<table>
+<div style="width: 0; min-width: 100%; overflow-x: auto;">
+
+<table style="width: max-content;">
+
 <tr>
-<td align="center" width="500"><strong>Create Account</strong></td>
-<td align="center" width="500"><strong>Find Account</strong></td>
-<td align="center" width="500"><strong>Fund Account</strong></td>
-<td align="center" width="500"><strong>Create / Remove Portfolio</strong></td>
-<td align="center" width="500"><strong>Execute Buy / Sell</strong></td>
+<td align="center" width="400"><strong>Create Account</strong></td>
+<td align="center" width="400"><strong>Find Account</strong></td>
+<td align="center" width="400"><strong>Fund Account</strong></td>
+<td align="center" width="400"><strong>Create / Remove Portfolio</strong></td>
+<td align="center" width="400"><strong>Execute Buy / Sell</strong></td>
 </tr>
 
 <tr>
@@ -133,7 +136,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
   <img src="diagrams/system-pipelines-create-account.png"
        alt="Create Account Pipe"
-       width="500">
+       width="400">
 </picture>
 </td>
 
@@ -142,7 +145,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
   <img src="diagrams/system-pipelines-find-account.png"
        alt="Find Account Pipe"
-       width="500">
+       width="400">
 </picture>
 </td>
 
@@ -151,7 +154,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
   <img src="diagrams/system-pipelines-fund-account.png"
        alt="Fund Account Pipe"
-       width="500">
+       width="400">
 </picture>
 </td>
 
@@ -160,7 +163,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
   <img src="diagrams/system-pipelines-create_or_remove-portfolio.png"
        alt="Create/Remove Portfolio Pipe"
-       width="500">
+       width="400">
 </picture>
 </td>
 
@@ -169,12 +172,15 @@ Core feature pipelines with traversal through layers and main method calls exclu
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
   <img src="diagrams/system-pipelines-execute_buy_or_sell.png"
        alt="Execute Buy/Sell Pipe"
-       width="500">
+       width="400">
 </picture>
 </td>
 
 </tr>
+
 </table>
+
+</div>
 
 
 ## Program Documentation Guidelines
