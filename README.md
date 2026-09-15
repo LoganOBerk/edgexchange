@@ -117,48 +117,36 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 
 
-<table>
+<table width="3600">
 
 <tr>
-<td align="center" nowrap><strong>Create Account</strong></td>
-<td align="center" nowrap><strong>Find Account</strong></td>
-<td align="center" nowrap><strong>Fund Account</strong></td>
-<td align="center" nowrap><strong>Create / Remove Portfolio</strong></td>
-<td align="center" nowrap><strong>Execute Buy / Sell</strong></td>
+<td align="center"><strong>Create Account</strong></td>
+<td align="center"><strong>Find Account</strong></td>
+<td align="center"><strong>Fund Account</strong></td>
+<td align="center"><strong>Create / Remove Portfolio</strong></td>
+<td align="center"><strong>Execute Buy / Sell</strong></td>
 </tr>
 
 <tr>
-
-<td align="center" nowrap>
-<img src="diagrams/system-pipelines-create-account.png"
-     alt="Create Account Pipe"
-     width="400">
+<td align="center" width="700">
+<img src="diagrams/system-pipelines-create-account.svg" alt="Create Account Pipeline" width="700">
 </td>
 
-<td align="center" nowrap>
-<img src="diagrams/system-pipelines-find-account.png"
-     alt="Find Account Pipe"
-     width="400">
+<td align="center" width="700">
+<img src="diagrams/system-pipelines-find-account.svg" alt="Find Account Pipeline" width="700">
 </td>
 
-<td align="center" nowrap>
-<img src="diagrams/system-pipelines-fund-account.png"
-     alt="Fund Account Pipe"
-     width="400">
+<td align="center" width="700">
+<img src="diagrams/system-pipelines-fund-account.svg" alt="Fund Account Pipeline" width="700">
 </td>
 
-<td align="center" nowrap>
-<img src="diagrams/system-pipelines-create_or_remove-portfolio.png"
-     alt="Create/Remove Portfolio Pipe"
-     width="400">
+<td align="center" width="700">
+<img src="diagrams/system-pipelines-create_or_remove-portfolio.svg" alt="Create or Remove Portfolio Pipeline" width="700">
 </td>
 
-<td align="center" nowrap>
-<img src="diagrams/system-pipelines-execute_buy_or_sell.png"
-     alt="Execute Buy/Sell Pipe"
-     width="400">
+<td align="center" width="700">
+<img src="diagrams/system-pipelines-execute_buy_or_sell.svg" alt="Execute Buy or Sell Pipeline" width="700">
 </td>
-
 </tr>
 
 </table>
