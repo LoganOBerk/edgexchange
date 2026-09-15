@@ -117,9 +117,9 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 
 
-<div style="overflow-x: auto;">
+<div style="overflow-x: auto; width: 100%;">
 
-<table style="min-width: 1400px;">
+<table style="min-width: 2000px;">
 
 <tr>
 <td align="center" width="20%"><strong>Create Account</strong></td>
@@ -132,48 +132,48 @@ Core feature pipelines with traversal through layers and main method calls exclu
 <tr>
 
 <td align="center">
-<a href="diagrams/system-pipelines-create-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
-  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe" width="100%">
+  <img src="diagrams/system-pipelines-create-account.png"
+       alt="Create Account Pipe"
+       width="400">
 </picture>
-</a>
 </td>
 
 <td align="center">
-<a href="diagrams/system-pipelines-find-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
-  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe" width="100%">
+  <img src="diagrams/system-pipelines-find-account.png"
+       alt="Find Account Pipe"
+       width="400">
 </picture>
-</a>
 </td>
 
 <td align="center">
-<a href="diagrams/system-pipelines-fund-account.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
-  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe" width="100%">
+  <img src="diagrams/system-pipelines-fund-account.png"
+       alt="Fund Account Pipe"
+       width="400">
 </picture>
-</a>
 </td>
 
 <td align="center">
-<a href="diagrams/system-pipelines-create_or_remove-portfolio.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
-  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe" width="100%">
+  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png"
+       alt="Create/Remove Portfolio Pipe"
+       width="400">
 </picture>
-</a>
 </td>
 
 <td align="center">
-<a href="diagrams/system-pipelines-execute_buy_or_sell.svg">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
-  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe" width="100%">
+  <img src="diagrams/system-pipelines-execute_buy_or_sell.png"
+       alt="Execute Buy/Sell Pipe"
+       width="400">
 </picture>
-</a>
 </td>
 
 </tr>
@@ -181,7 +181,6 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </table>
 
 </div>
-
 
 
 ## Program Documentation Guidelines
