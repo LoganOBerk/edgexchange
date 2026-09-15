@@ -259,7 +259,7 @@ class Cli:
             table = Visualizer().construct_stock_table(portfolio, len(title))
             print(table)
 
-            vis.display_pie_chart(lambda: self.api.package_portfolio_data([portfolio]))
+            vis.display_pie_chart(lambda: self.api.serialize([portfolio]))
 
             print("1. Buy Stock")
             print("2. Sell Stock")

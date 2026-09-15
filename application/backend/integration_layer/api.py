@@ -9,8 +9,8 @@ from .routes import connect
 
 
 # PURPOSE:
-#   -Api provides a user operation abstraction
-#   -This abstraction is provided to enforce function contracts on POST or GET request
+#   -Api provides a request handling abstraction
+#   -This enforces function contracts and system layering
 class Api:
     def __init__(self, service, sanitizer, validator):
         self.serv = service
@@ -144,7 +144,7 @@ class Api:
     
     
     # INPUT:
-    #   -portfolios(list[Portfolio]); a current user portfolio
+    #   -portfolios(list[Portfolio]); all users portfolios
     # OUTPUT:
     #   -return(AsyncGenerator); a async generator that yields live portfolio data
     # PRECONDITION:

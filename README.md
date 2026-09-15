@@ -221,7 +221,7 @@ def function_name(param_name: type) -> type:
 
 ### Request Models
 
-JSON request bodies sent to the Frontend API.
+JSON request bodies sent to the system routes.
 
 **LogoutRequest**
 ```json
@@ -266,7 +266,7 @@ JSON request bodies sent to the Frontend API.
 
 ### Response Models
 
-JSON response bodies returned by the Frontend API.
+JSON response bodies returned by the system routes.
 
 **StockData**
 ```json
