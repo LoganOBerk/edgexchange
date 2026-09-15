@@ -256,7 +256,7 @@ class Cli:
             title = f"-------------------{portfolio.name}-------------------"
             print(title)
 
-            table = vis.construct_stock_table(portfolio, len(title))
+            table = Visualizer().construct_stock_table(portfolio, len(title))
             print(table)
 
             vis.display_pie_chart(lambda: self.api.package_portfolio_data([portfolio]))

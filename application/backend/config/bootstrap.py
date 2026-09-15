@@ -1,5 +1,5 @@
 from .environment import Environment as env
-from interface_layer import Cli, Visualizer, Frontend
+from interface_layer import Cli, Frontend
 from sanitization_layer import Sanitizer
 from validation_layer import Validator
 from service_layer import Service

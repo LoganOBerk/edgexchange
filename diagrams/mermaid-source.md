@@ -39,7 +39,7 @@ flowchart TB
     linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
     linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
     linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:none
     linkStyle 4 stroke:#FF5A00,stroke-width:2.5px,fill:none
     linkStyle 5 stroke:#FF5A00,stroke-width:2.5px,fill:none
     linkStyle 6 stroke:#FF5A00,stroke-width:2.5px,fill:none
