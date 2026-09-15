@@ -117,16 +117,14 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 
 
-<div style="width: 0; min-width: 100%; overflow-x: auto;">
-
-<table style="width: max-content;">
+<table>
 
 <tr>
-<td align="center" width="400"><strong>Create Account</strong></td>
-<td align="center" width="400"><strong>Find Account</strong></td>
-<td align="center" width="400"><strong>Fund Account</strong></td>
-<td align="center" width="400"><strong>Create / Remove Portfolio</strong></td>
-<td align="center" width="400"><strong>Execute Buy / Sell</strong></td>
+<td align="center"><strong>Create Account</strong></td>
+<td align="center"><strong>Find Account</strong></td>
+<td align="center"><strong>Fund Account</strong></td>
+<td align="center"><strong>Create / Remove Portfolio</strong></td>
+<td align="center"><strong>Execute Buy / Sell</strong></td>
 </tr>
 
 <tr>
@@ -179,8 +177,6 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </tr>
 
 </table>
-
-</div>
 
 
 ## Program Documentation Guidelines
