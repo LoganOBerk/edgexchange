@@ -144,7 +144,7 @@ class Api:
     
     
     # INPUT:
-    #   -portfolios(list[Portfolio]); a current user portfolio
+    #   -portfolios(list[Portfolio]); all users portfolios
     # OUTPUT:
     #   -return(AsyncGenerator); a async generator that yields live portfolio data
     # PRECONDITION:
