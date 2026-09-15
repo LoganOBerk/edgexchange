@@ -15,23 +15,23 @@ class Visualizer:
 
         
     # INPUT:
-    #   -package_portfolio_data(callable); portfolio data formatter returns list[dict[str|int]]
+    #   -serialize(callable); returns serialized portfolios in a dict representing json format
     # OUTPUT: None
     # PRECONDITION:
-    #   -package_portfolio_data; returns list, each dict contains 'ticker'(str), 'value'(float), 'label'(str) and the last item is portfolio total(float)
+    #   -serialize; returns a fully serialized dict representing all portfolios user has
     # POSTCONDITION:
     #   -self.fig, self.ax, self.ani; constructed and active if no chart exists and data is non-empty, otherwise unchanged
     #   -execution; chart display does not block program
     # RAISES: None
-    def display_pie_chart(self, package_portfolio_data : callable) -> None:
+    def display_pie_chart(self, serialize : callable) -> None:
         PRICE_REFRESH_INTERVAL = 4000
 
-        if self.fig is None and package_portfolio_data()["portfolios"][0]["stocks"]:
+        if self.fig is None and serialize()["portfolios"][0]["stocks"]:
             self.fig, self.ax = plt.subplots()
             self.fig.canvas.mpl_connect('close_event', self.clean_up)
 
-            def update(frame):
-                portfolio_data = package_portfolio_data()
+            def update():
+                portfolio_data = serialize()
                 portfolio = portfolio_data["portfolios"][0]
 
                 self.ax.clear()

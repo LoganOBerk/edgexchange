@@ -23,9 +23,9 @@ class Api:
         connect(self)
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.package_portfolio_data() fields
-    def package_portfolio_data(self, portfolios):
-        return self.serv.package_portfolio_data(portfolios)
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.serialize() fields
+    def serialize(self, portfolios):
+        return self.serv.serialize(portfolios)
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.create_account() fields
@@ -158,7 +158,7 @@ class Api:
         async def stream():
             while True:
               
-                data = self.package_portfolio_data(portfolios)
+                data = self.serialize(portfolios)
 
                 if data:
                     yield json.dumps(data) + "\n"

@@ -7,26 +7,21 @@ from persistence_layer import StoredAccount, StoredUser
 
 
 # INPUT:
-#   -stored_data(StoredAccount); all data related to user account
+#   -data(StoredAccount); all data related to user account
 # OUTPUT:
 #   -user(User); a fully populated user object
 # PRECONDITION:
-#   -stored_data; some non empty set of stored data for a real user
+#   -data; some non empty set of stored data for a real user
 # POSTCONDITION:
 #   -user; populated with id, username, balance, all portfolios and their stocks from database
 # RAISES: None
-def build_account(stored_data : StoredAccount) -> User:
-    user = stored_data.user
-    portfolios = stored_data.portfolios
-    stocks = stored_data.stocks
-    
+def build(data : StoredAccount) -> User:
+    user = User(id = data.user.id, username = data.user.username, balance = data.user.balance)
 
-    user = User(id = user.id, username = user.username, balance = user.balance)
-
-    for portfolio in portfolios:
+    for portfolio in data.portfolios:
             user.portfolios[portfolio.name] = Portfolio(id = portfolio.id, name = portfolio.name)
 
-            for stock in stocks.get(portfolio.id, []):
+            for stock in data.stocks.get(portfolio.id, []):
                 user.portfolios[portfolio.name].stocks[stock.ticker] = Stock(id = stock.id, ticker = stock.ticker, quantity = stock.quantity)
 
     return user
@@ -120,7 +115,7 @@ class Service:
     def find_account(self, username : str) -> User:
         try:
 
-            user = build_account(self.db.pull_account(username))
+            user = build(self.db.pull_account(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
@@ -323,15 +318,16 @@ class Service:
     # INPUT:
     #   -portfolios(list[Portfolio]); users portfolios
     # OUTPUT:
-    #   -packaged_data(dict[str, list[dict]]); all portfolios holdings and total value at the moment or empty dict if the call fails
+    #   -data(dict); detailed construction of all portfolios holdings
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -packaged_data; "total" contains portfolio current value and "holdings" contains all stock holdings
+    #   -data; contains all relevant data to portfolios in a json serializable format
     # RAISES: None
-    def package_portfolio_data(self, portfolios: list[Portfolio]) -> dict[str, list[dict]]:
+    @staticmethod
+    def serialize(portfolios: list[Portfolio]) -> dict:
 
-        packaged_data = {}
         holdings = set()
+        data = {"portfolios" : []}
 
         try:
             
@@ -339,31 +335,33 @@ class Service:
 
             prices = lcac.get_prices(holdings)
 
-            packaged_data["portfolios"] = []
             for portfolio in portfolios:
                 total = 0
-                entry = {"portfolio": portfolio.name, "total": total, "stocks": []}
+                basket = {"portfolio": portfolio.name, "total": total, "stocks": []}
 
                 for ticker, stock in portfolio.stocks.items():
+
                     price = prices[ticker]
-                    value = stock.quantity * price
+                    quantity = stock.quantity
+                    value = quantity * price
+                    sector = lcac.get_sector(ticker)
                     total += value
 
-                    entry["stocks"].append({
+                    basket["stocks"].append({
                         "ticker": ticker,
                         "price": price,
-                        "quantity": stock.quantity,
+                        "quantity": quantity,
                         "value": value,
-                        "sector": lcac.get_sector(ticker),
+                        "sector": sector,
                     })
 
-                entry["total"] = total
-                packaged_data["portfolios"].append(entry)
+                basket["total"] = total
+                data["portfolios"].append(basket)
 
-        except LiveCacheError as e:
+        except LiveCacheError:
             pass
 
-        return packaged_data
+        return data
 
 
 
