@@ -80,26 +80,18 @@ class Service:
         return float
 
 
-    # INPUT:
-    #   -username(str); user username
-    # OUTPUT:
-    #   -user_fields(StoredUser); user id, username, password, balance
-    # PRECONDITION: None
-    # POSTCONDITION:
-    #   -user_fields; user information provided if username exists in database, None otherwise
-    # RAISES:
-    #   -ServiceError; database call fails
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in Database.pull_user()
+    # RAISES: 
+    #   -ServiceError; propagated from Database.pull_user()
     def field_user(self, username : str) -> StoredUser:
         try:
 
-            user_fields = self.db.pull_user(username)
+            user_data = self.db.pull_user(username)
 
         except DatabaseError as e:
-            raise ServiceError("Failed to find user fields") from e
+            raise ServiceError("Failed to find user data") from e
 
-        return user_fields
-
-
+        return user_data
 
 
     # INPUT:
