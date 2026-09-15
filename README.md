@@ -116,46 +116,47 @@ uv run edgexchange -s -v 5
 Core feature pipelines with traversal through layers and main method calls excluding helper functions.
 
 
-### Create Account
----
+<table>
+<tr>
+<td align="center" width="20%"><strong>Create Account</strong></td>
+<td align="center" width="20%"><strong>Find Account</strong></td>
+<td align="center" width="20%"><strong>Fund Account</strong></td>
+<td align="center" width="20%"><strong>Create / Remove Portfolio</strong></td>
+<td align="center" width="20%"><strong>Execute Buy / Sell</strong></td>
+</tr>
+<tr>
+<td align="center">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
-  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe" width="495">
+  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipe" width="100%">
 </picture>
-
-
-### Find Account
----
+</td>
+<td align="center">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
-  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe" width="476">
+  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipe" width="100%">
 </picture>
-
-
-### Fund Account
----
+</td>
+<td align="center">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
-  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe" width="495">
+  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipe" width="100%">
 </picture>
-
-
-### Create / Remove Portfolio
----
+</td>
+<td align="center">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
-  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe" width="589">
+  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create/Remove Portfolio Pipe" width="100%">
 </picture>
-
-
-### Execute Buy / Sell
----
+</td>
+<td align="center">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
-  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe" width="545">
+  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy/Sell Pipe" width="100%">
 </picture>
-
----
+</td>
+</tr>
+</table>
 
 ## Program Documentation Guidelines
 

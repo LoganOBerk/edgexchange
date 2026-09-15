@@ -83,11 +83,11 @@ erDiagram
 
 # Create Account
 flowchart TD
-    A(["client"]) --> B["Api.create_account"]
-    B --> C["Sanitizer.sanitize_credentials"]
-    C --> D["Validator.account_validator"]
-    D --> E["Service.create_account"]
-    E --> F[("Database.insert_user")]
+    A(["client"]) --> B["    Api.create_account     "]
+    B --> C[" Sanitizer.sanitize_credentials  "]
+    C --> D["   Validator.account_validator    "]
+    D --> E["    Service.create_account     "]
+    E --> F[("       Database.insert_user        ")]
 
     A:::client
     B:::integration
@@ -111,11 +111,11 @@ flowchart TD
 
 # Find Account
 flowchart TD
-    A(["client"]) --> B["Api.find_account"]
-    B --> C["Sanitizer.sanitize_credentials"]
-    C --> D["Validator.account_validator"]
-    D --> E["Service.find_account"]
-    E --> F[("Database.pull_account")]
+    A(["client"]) --> B["     Api.find_account      "]
+    B --> C[" Sanitizer.sanitize_credentials  "]
+    C --> D["   Validator.account_validator    "]
+    D --> E["     Service.find_account      "]
+    E --> F[("       Database.pull_account       ")]
 
     A:::client
     B:::integration
@@ -139,11 +139,11 @@ flowchart TD
 
 # Fund Account
 flowchart TD
-    A(["client"]) --> B["Api.fund_account"]
-    B --> C["Sanitizer.sanitize_funds_request"]
-    C --> D["Validator.fund_validator"]
-    D --> E["Service.fund_account"]
-    E --> F[("Database.update_funds")]
+    A(["client"]) --> B["     Api.fund_account      "]
+    B --> C["Sanitizer.sanitize_funds_request "]
+    C --> D["     Validator.fund_validator     "]
+    D --> E["     Service.fund_account      "]
+    E --> F[("       Database.update_funds       ")]
 
     A:::client
     B:::integration
@@ -169,9 +169,9 @@ flowchart TD
 flowchart TD
     A(["client"]) --> B["Api.create/remove_portfolio"]
     B --> C["Sanitizer.sanitize_portfolio_name"]
-    C --> D["Validator.portfolio_validator"]
+    C --> D["  Validator.portfolio_validator   "]
     D --> E["Service.create/remove_portfolio"]
-    E --> F[("Database.insert/delete_portfolio")]
+    E --> F[(" Database.insert/delete_portfolio  ")]
 
     A:::client
     B:::integration
@@ -195,10 +195,10 @@ flowchart TD
 
 # Execute Buy/Sell
 flowchart TD
-    A(["client"]) --> B["Api.execute_buy/sell"]
+    A(["client"]) --> B["   Api.execute_buy/sell    "]
     B --> C["Sanitizer.sanitize_shares_request"]
     C --> D["Validator.shares_request_validator"]
-    D --> E["Service.execute_buy/sell"]
+    D --> E["   Service.execute_buy/sell    "]
     E --> F[("Database.update/insert/delete_stock")]
 
     A:::client
