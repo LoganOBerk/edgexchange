@@ -215,7 +215,7 @@ def function_name(param_name: type) -> type:
 
 | Type | Description |
 |---|---|
-| `User` | Represents a user account; holds login, balance, and a collection of portfolios |
+| `User` | Represents a user account; holds username, balance, and a collection of portfolios |
 | `Portfolio` | Represents a named collection of stocks |
 | `Stock` | Represents a stock holding; ticker and quantity |
 
@@ -233,7 +233,7 @@ JSON request bodies sent to the system routes.
 **CredsRequest**
 ```json
 {
-    "login": "string",
+    "username": "string",
     "password": "string"
 }
 ```
@@ -291,7 +291,7 @@ JSON response bodies returned by the system routes.
 **UserData**
 ```json
 {
-    "login": "john_doe",
+    "username": "john_doe",
     "balance": 1000.00,
     "portfolios": {
         "tech": { }

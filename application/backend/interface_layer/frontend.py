@@ -11,12 +11,12 @@ from integration_layer import Api, router
 class Frontend:
     def __init__(self, service, sanitizer, validator):
 
-        origins = ["*"]
+        origins = ["http://localhost:3000"]
 
         Api(service, sanitizer, validator).link_routes()
 
         self.app = FastAPI()
-        self.app.add_middleware(CORSMiddleware, allow_origins = origins, allow_credentials = True, allow_methods = ['*'], allow_headers = ['*'])
+        self.app.add_middleware(CORSMiddleware, allow_origins = origins, allow_methods = ['*'], allow_headers = ['*'])
         self.app.include_router(router)
 
     
