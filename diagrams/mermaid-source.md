@@ -1,31 +1,61 @@
 # System Architecture
+---
+config:
+  themeVariables:
+    edgeLabelBackground: '#FFFFFF'
+---
 flowchart TB
-    A(["App.run"]) --> B["Cli"] & C["Frontend"]
-    B -.-> VIZ(["Visualizer"])
-    VIZ ~~~ ERR[/"Errors"/]
-    B --> D(["Client"])
+ subgraph TOPROW[" "]
+    direction LR
+        SPL1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+        A(["App.run"])
+        SPR1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+  end
+ subgraph PIPE[" "]
+    direction LR
+        E[["Sanitizer"]]
+        F[["Api"]]
+        G[["Validator"]]
+        H[["Service"]]
+        HPAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+  end
+ subgraph TAIL2[" "]
+    direction LR
+        DOM["Domain Models"]
+        I[("&nbsp;&nbsp;&nbsp;&nbsp;Database&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;")]
+        LC["LiveCache"]
+        LCPAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+  end
+    A --> C[/"Frontend"/] & B[/"Cli"/]
+    B -.-> VIZ["Visualizer"]
+    VIZ ~~~ ERR["Errors"]
+    B --> D(("Client"))
     C --> D
-    D --> F["Api"]
-    F --> E["Sanitizer"]
-    E --> G["Validator"]
-    G --> H["Service"]
-    H --> DOM["Domain Models"] & I[("Database")] & LC["LiveCache"]
+    D -- FRONTEND --> R[["Routes"]]
+    D -- CLI --> F
+    R --> SC["SessionCache"] & F
+    F --> E
+    E --> G
+    G --> H
+    H --> DOM & I & LC
     LC --> EXT["External API"]
 
-     A:::config
-     B:::interface
-     C:::interface
-     VIZ:::interface
-     ERR:::errorNode
-     D:::client
-     F:::integration
-     E:::sanitization
-     G:::validation
-     H:::service
-     DOM:::domain
-     I:::persistence
-     LC:::integration
-     EXT:::integration
+    VIZ@{ shape: curv-trap}
+    ERR@{ shape: st-doc}
+    SC@{ shape: win-pane}
+    LC@{ shape: win-pane}
+    EXT@{ shape: cloud}
+    class SPL1,SPR1,HPAD,LCPAD spacer
+    class A config
+    class C,B,VIZ interface
+    class ERR errorNode
+    class D client
+    class R,F,SC,LC,EXT integration
+    class E sanitization
+    class G validation
+    class H service
+    class DOM domain
+    class I persistence
     classDef config fill:#D6CDBB,stroke:#6E634C,color:#2E2818
     classDef interface fill:#D2C4E3,stroke:#5C4A85,color:#2C2145
     classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
@@ -36,22 +66,15 @@ flowchart TB
     classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
     classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
     classDef domain fill:#D9A9C5,stroke:#84315E,color:#421830
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
+    classDef spacer fill:none,stroke:none,color:none
+    style TOPROW fill:none,stroke:none
+    style PIPE fill:none,stroke:none
+    style TAIL2 fill:none,stroke:none
+    linkStyle default stroke:#FF6D00,stroke-width:2.5px,fill:none
     linkStyle 3 stroke:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 5 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 6 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 7 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 8 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 9 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 10 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 11 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 12 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 13 stroke:#FF5A00,stroke-width:2.5px
 
 # Database Architecture
+%%{init: {'themeVariables': {'lineColor': '#FF6D00', 'edgeLabelBackground': '#FFFFFF'}}}%%
 erDiagram
 	direction LR
 	USERS {
@@ -77,9 +100,9 @@ erDiagram
 	USERS||--o{PORTFOLIOS:"has"
 	PORTFOLIOS||--o{STOCKS:"contains"
 
-	style USERS fill:#8C2F12,stroke:#5A1D0B,color:#FFFFFF
-	style PORTFOLIOS fill:#D94A24,stroke:#8C2F12,color:#FFFFFF
-	style STOCKS fill:#FF3B1F,stroke:#B33A15,color:#FFFFFF
+	style USERS fill:#B7A17Ecc,stroke:#7C5527,color:#3E2A12
+	style PORTFOLIOS fill:#D3B78Dcc,stroke:#7C5527,color:#3E2A12
+	style STOCKS fill:#C9AD82cc,stroke:#6E4A20,color:#2E2010
 
 # Create Account
 flowchart TD

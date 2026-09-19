@@ -97,17 +97,21 @@ uv run edgexchange -s -v 5
 
 ## System Architecture
 
-<picture>
-  <source type="image/svg+xml" srcset="diagrams/system-architecture.svg">
-  <img src="diagrams/system-architecture.png" alt="System Architecture" width="677">
-</picture>
+<p align="center">
+  <picture>
+    <source type="image/svg+xml" srcset="diagrams/system-architecture.svg">
+    <img src="diagrams/system-architecture.png" alt="System Architecture" width="1200">
+  </picture>
+</p>
 
 ### Database Architecture
 ---
-<picture>
-  <source type="image/svg+xml" srcset="diagrams/system-database.svg">
-  <img src="diagrams/system-database.png" alt="Database Architecture" width="1362">
-</picture>
+<p align="center">
+  <picture>
+    <source type="image/svg+xml" srcset="diagrams/system-database.svg">
+    <img src="diagrams/system-database.png" alt="Database Architecture" width="1600">
+  </picture>
+</p>
 
 ---
 
