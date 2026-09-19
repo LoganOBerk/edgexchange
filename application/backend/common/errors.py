@@ -31,3 +31,9 @@ class FetchingError(Exception):
 #   -Allows for exceptions to be re-raised as a general errortype for any live cache issue
 class LiveCacheError(Exception):
     pass
+
+# PURPOSE: 
+#   -SessionCacheError provides a central session cache error abstraction
+#   -Allows for exceptions to be re-raised as a general errortype for any session cache issue
+class SessionCacheError(Exception):
+    pass

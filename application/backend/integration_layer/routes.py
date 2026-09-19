@@ -1,37 +1,14 @@
-import secrets
-from collections import defaultdict
-from threading import Lock
-
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from common.errors import ServiceError, ValidationError
+from .sessioncache import SessionCache as scac
+from common.errors import ServiceError, ValidationError, SessionCacheError
 from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest
 from .pydantic_models.responses import UserData, PortfolioData
 
 
 api = None
 router = APIRouter()
-
-active_sessions : dict[str, int] = {}
-user_sessions : defaultdict[int,set] = defaultdict(set)
-active_users : dict[int, object] = {}
-
-session_lock = Lock()
-
-
-# INPUT:
-#   -u_id(int); user identification number
-# OUTPUT:
-#   -is_cached(bool); True or False if user is in the cache
-# PRECONDITION: None
-# POSTCONDITION:
-#   -is_cached; returns True when u_id has a user in cache, False otherwise
-# RAISES: None
-def cached(u_id : int) -> bool:
-    is_cached = active_users.get(u_id) is not None
-    return is_cached
-
 
 # INPUT:
 #   -interface(Api); functional interface
@@ -44,57 +21,6 @@ def cached(u_id : int) -> bool:
 def connect(interface) -> None:
     global api
     api = interface
-
-
-# INPUT: None
-# OUTPUT:
-#   -session_id(str); randomly generated hex string
-# PRECONDITION: None
-# POSTCONDITION:
-#   -session_id; does not exist as a key in active_sessions
-# RAISES: None
-def generate_session_id() -> str:
-    session_id = secrets.token_hex(32)
-
-    while session_id in active_sessions:
-        session_id = secrets.token_hex(32)
-
-    return session_id
-
-
-# INPUT:
-#   -user(User); a user account
-# OUTPUT:
-#   -session_id(str); randomly generated hex string
-# PRECONDITION:
-#   -user; fully populated
-# POSTCONDITION:
-#   -active_sessions; session_id mapped to user.id
-#   -active_users; user.id mapped to user
-# RAISES: None
-def start_session(user) -> str:
-    with session_lock:
-        session_id = generate_session_id()
-        active_sessions[session_id] = user.id
-        user_sessions[user.id].add(session_id)
-        active_users[user.id] = user
-            
-    return session_id
-
-
-# INPUT:
-#   -session_id(str); a session of some user
-# OUTPUT:
-#   -user(User); a user account
-# PRECONDITION: None
-# POSTCONDITION:
-#   -user; User matching session_id returned if session exists, None otherwise
-# RAISES: None
-def find_sessions_user(session_id : str):
-    u_id = active_sessions.get(session_id)
-    user = active_users.get(u_id)
-
-    return user
 
 
 # INPUT:
@@ -153,8 +79,8 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
 
         user = api.find_account(creds)
 
-        if cached(user.id):
-            user = active_users.get(user.id) 
+        if scac.cached(user.id):
+            user = scac.find_active_user(user.id) 
         
 
     except ValidationError as e:
@@ -163,7 +89,7 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
     except ServiceError as e:
         raise HTTPException(status_code = 401, detail = str(e))
 
-    session_id = start_session(user)
+    session_id = scac.start_session(user)
     
     response = {"session_id" : session_id, "user" : UserData.convert(user)}
 
@@ -185,18 +111,13 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
 @router.post("/logout")
 def logout(req : LogoutRequest) -> dict[str, str]:
 
-    with session_lock:
-        u_id = active_sessions.pop(req.session_id, None)
-        
-        if u_id is None:
-            raise HTTPException(status_code = 404, detail = "session not found")
+    try:
 
-        user_sessions[u_id].discard(req.session_id)
+        scac.terminate_session(req.session_id)
 
-        if not user_sessions[u_id]:
-            active_users.pop(u_id, None)
-            user_sessions.pop(u_id, None)
-
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
+    
     response = {"message" : "logged out"}
 
     return response
@@ -218,16 +139,16 @@ def logout(req : LogoutRequest) -> dict[str, str]:
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.post("/fund")
 def fund(req : FundsRequest) -> dict[str, UserData]:
-    user = find_sessions_user(req.session_id)
-
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
-
     try:
+
+        user = scac.find_sessions_user(req.session_id)
 
         with user.lock:
             api.fund_account(user, req.funds_requested)
             response = {"user" : UserData.convert(user)}
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
     
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -254,16 +175,16 @@ def fund(req : FundsRequest) -> dict[str, UserData]:
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.post("/portfolio/create", status_code = 201)
 def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
-    user = find_sessions_user(req.session_id)
-
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
-
     try:
-        
+
+        user = scac.find_sessions_user(req.session_id)
+
         with user.lock:
             api.create_portfolio(user, req.name)
             response = {"user" : UserData.convert(user)}
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
     
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -290,16 +211,16 @@ def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.post("/portfolio/remove")
 def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
-    user = find_sessions_user(req.session_id)
-
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
-
     try:
+
+        user = scac.find_sessions_user(req.session_id)
 
         with user.lock:
             api.remove_portfolio(user, req.name)
             response = {"user" : UserData.convert(user)}    
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
     
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
@@ -327,16 +248,11 @@ def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.post("/buy")
 def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
-    user = find_sessions_user(req.session_id)
-
-    shares_requested = (req.ticker, req.quantity)
-
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
-
-
     try:
 
+        user = scac.find_sessions_user(req.session_id)
+        shares_requested = (req.ticker, req.quantity)
+        
         with user.lock:
             portfolio = user.portfolios.get(req.portfolio_name)
 
@@ -345,7 +261,10 @@ def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
 
             api.execute_buy(user, portfolio, shares_requested)
             response = {"portfolio" : PortfolioData.convert(portfolio)}
-            
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
+    
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
 
@@ -372,14 +291,11 @@ def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
 #   -HTTPException(500); a ServiceError is raised, server side error
 @router.post("/sell")
 def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
-    user = find_sessions_user(req.session_id)
-
-    shares_requested = (req.ticker, req.quantity)
-
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
     try:
 
+        user = scac.find_sessions_user(req.session_id)
+        shares_requested = (req.ticker, req.quantity)
+        
         with user.lock:
             portfolio = user.portfolios.get(req.portfolio_name)
 
@@ -388,7 +304,10 @@ def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
 
             api.execute_sell(user, portfolio, shares_requested)
             response = {"portfolio" : PortfolioData.convert(portfolio)}
-            
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
+    
     except ValidationError as e:
         raise HTTPException(status_code = 400, detail = str(e))
 
@@ -413,10 +332,12 @@ def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
 #   -HTTPException(401); unauthorized, user session does not exist
 @router.get("/user")
 def get_user(session_id : str) -> dict[str, UserData]:
-    user = find_sessions_user(session_id)
+    try:
 
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
+        user = scac.find_sessions_user(session_id)
+
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
 
     response = {"user": UserData.convert(user)}
 
@@ -462,11 +383,14 @@ async def get_quote(ticker : str) -> dict[str, dict]:
 #   -HTTPException(404); portfolios are not found   
 @router.get("/portfolios")
 async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
-    user = find_sessions_user(session_id)
 
-    if user is None:
-        raise HTTPException(status_code = 401, detail = "Invalid session")
-        
+    try:
+    
+        user = scac.find_sessions_user(session_id)
+    
+    except SessionCacheError as e:
+        raise HTTPException(status_code = 401, detail = str(e))
+
     portfolios = list(user.portfolios.values())
     
     if not portfolios:
