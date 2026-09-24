@@ -1,5 +1,5 @@
-import sqlite3 as sqlite
-from sqlite3 import Error as SqliteError
+import psycopg
+from psycopg import Error as PsycopgError
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
@@ -7,13 +7,11 @@ from .data_models import StoredAccount, StoredUser, StoredPortfolio, StoredStock
 
 
 # PURPOSE: 
-#   -Database provides a SQLite database operation abstraction
+#   -Database provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
 class Database:
     def __init__(self, source):
-        self.source = source
-        self.conn = sqlite.connect(source, check_same_thread = False, timeout = 30)
-        self.conn.execute("PRAGMA foreign_keys = ON")
+        self.conn = psycopg.connect(source)
         self.build_database()
 
 
@@ -24,50 +22,48 @@ class Database:
     # POSTCONDITION:
     #   -database; users, portfolios, and stocks tables exist and are properly linked
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during table creation
+    #   -DatabaseError; PsycopgError occurs during table creation
     def build_database(self) -> None:
         cursor = self.conn.cursor()
 
+        module = "CREATE EXTENSION IF NOT EXISTS citext;"
+
         create_user_table = '''
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY,
-                username TEXT UNIQUE COLLATE NOCASE NOT NULL,
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                username CITEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                balance REAL NOT NULL DEFAULT 0
+                balance NUMERIC(18, 2) NOT NULL DEFAULT 0
             );
         '''
 
         create_portfolios_table = '''
             CREATE TABLE IF NOT EXISTS portfolios (
-                id INTEGER PRIMARY KEY,
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 name TEXT NOT NULL,
-
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
                 UNIQUE(user_id, name)
             );
         '''
 
         create_stocks_table = '''
             CREATE TABLE IF NOT EXISTS stocks (
-                id INTEGER PRIMARY KEY,
+                id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                 portfolio_id INTEGER NOT NULL,
                 ticker TEXT NOT NULL,
                 quantity INTEGER NOT NULL,
-
                 FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-
                 UNIQUE(portfolio_id, ticker)
             );
         '''
 
         try:
 
-            cursor.executescript(create_user_table + create_portfolios_table + create_stocks_table)
+            cursor.execute("\n".join([module, create_user_table, create_portfolios_table, create_stocks_table]))
             self.conn.commit()
 
-        except SqliteError as e:
+        except PsycopgError as e:
             self.conn.rollback()
             raise DatabaseError(f"build_database failed: {e}") from e
 
@@ -75,27 +71,27 @@ class Database:
     # INPUT:
     #   -username(str); user username 
     # OUTPUT:
-    #   -user_data(tuple[int,str,str,float] | None); id, username, password, balance
+    #   -user_data(StoredUser | None); id, username, password, balance
     # PRECONDITION: None
     # POSTCONDITION:
     #   -user_data; row matching username retrieved if exists, None otherwise
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during selection 
-    def pull_user(self, username : str) -> tuple[int, str, float] | None:
+    #   -DatabaseError; PsycopgError occurs during selection 
+    def pull_user(self, username : str) -> StoredUser | None:
 
         cursor = self.conn.cursor()
 
         pull_user = '''
-            SELECT id, username, password, balance
+            SELECT id, username, password, balance::float8
             FROM users
-            WHERE username = ?
+            WHERE username = %s
         '''
 
         try:
 
             cursor.execute(pull_user, (username,))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"pull_user failed: {e}") from e
 
         row = cursor.fetchone()
@@ -111,27 +107,27 @@ class Database:
     # INPUT:
     #   -user_id(int); user id number in database
     # OUTPUT:
-    #   -user_portfolios(list[tuple[int,str]]); list of all portfolios the user has
+    #   -user_portfolios(list[StoredPortfolio]); list of all portfolios the user has
     # PRECONDITION:
     #   -user_id; exists in database  
     # POSTCONDITION:
     #   -user_portfolios; all portfolio rows for user_id retrieved, empty list if none exist
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during selection
-    def pull_portfolios(self, user_id : int) -> list[tuple[int, str]]:
+    #   -DatabaseError; PsycopgError occurs during selection
+    def pull_portfolios(self, user_id : int) -> list[StoredPortfolio]:
         cursor = self.conn.cursor()
 
-        pull_portfolios = f'''
+        pull_portfolios = '''
             SELECT id, user_id, name
             FROM portfolios
-            WHERE user_id = ?
+            WHERE user_id = %s
         '''
 
         try:
 
             cursor.execute(pull_portfolios, (user_id,))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"pull_portfolios failed: {e}") from e
 
         rows = cursor.fetchall()
@@ -147,28 +143,28 @@ class Database:
     # INPUT:
     #   -user_id(int); user id number in database 
     # OUTPUT:
-    #   -user_stocks(list[tuple[int,int,str,int]]); list of all users owned stocks across all portfolios
+    #   -user_stocks(list[StoredStock]); list of all users owned stocks across all portfolios
     # PRECONDITION:
     #   -user_id; exists in database
     # POSTCONDITION:
     #   -user_stocks; all stock rows across all portfolios for user_id retrieved, empty list if none exist
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during selection
-    def pull_stocks(self, user_id : int) -> list[tuple[int, int, str, int]]:
+    #   -DatabaseError; PsycopgError occurs during selection
+    def pull_stocks(self, user_id : int) -> list[StoredStock]:
         cursor = self.conn.cursor()
 
-        pull_stocks = f'''
+        pull_stocks = '''
             SELECT s.id, s.portfolio_id, s.ticker, s.quantity
             FROM stocks s
             JOIN portfolios p ON s.portfolio_id = p.id
-            WHERE p.user_id = ?
+            WHERE p.user_id = %s
         '''
 
         try:
 
             cursor.execute(pull_stocks, (user_id,))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"pull_stocks failed: {e}") from e
 
         rows = cursor.fetchall()
@@ -191,23 +187,24 @@ class Database:
     #   -database; new user row inserted with username and password
     #   -u_id; primary key of the inserted user row
     # RAISES:
-    #   -DatabaseError; SqliteError occurs on insert
+    #   -DatabaseError; PsycopgError occurs on insert
     def insert_user(self, credentials : tuple[str, str]) -> int:
         cursor = self.conn.cursor()
 
         insert_user = '''
             INSERT INTO users (username, password)
-            VALUES (?, ?)
+            VALUES (%s, %s)
+            RETURNING id
         '''
 
         try:
 
             cursor.execute(insert_user, credentials)
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"insert_user failed: {e}") from e
 
-        u_id = cursor.lastrowid
+        u_id = cursor.fetchone()[0]
 
         return u_id
 
@@ -224,23 +221,24 @@ class Database:
     #   -database; new portfolio row inserted with user_id and portfolio_name
     #   -p_id; primary key of the inserted portfolio row
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during insertion
+    #   -DatabaseError; PsycopgError occurs during insertion
     def insert_portfolio(self, user_id : int, portfolio_name : str) -> int:
         cursor = self.conn.cursor()
 
         insert_portfolio = '''
             INSERT INTO portfolios (user_id, name)
-            VALUES (?, ?)
+            VALUES (%s, %s)
+            RETURNING id
         '''
 
         try:
 
             cursor.execute(insert_portfolio, (user_id, portfolio_name))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"insert_portfolio failed: {e}") from e
 
-        p_id = cursor.lastrowid
+        p_id = cursor.fetchone()[0]
 
         return p_id 
 
@@ -253,20 +251,20 @@ class Database:
     # POSTCONDITION:
     #   -database; portfolio row and all associated stock rows deleted via CASCADE
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during delete
+    #   -DatabaseError; PsycopgError occurs during delete
     def delete_portfolio(self, portfolio_id : int) -> None:
         cursor = self.conn.cursor()
 
         delete_portfolio = '''
             DELETE FROM portfolios
-            WHERE id = ?
+            WHERE id = %s
         '''
 
         try:
 
             cursor.execute(delete_portfolio, (portfolio_id,))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"delete_portfolio failed: {e}") from e
 
 
@@ -282,13 +280,14 @@ class Database:
     #   -database; new stock row inserted with portfolio_id, ticker, and quantity
     #   -s_id; primary key of the inserted stock row
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during insertion
+    #   -DatabaseError; PsycopgError occurs during insertion
     def insert_stock(self, portfolio_id : int, shares_requested : tuple[str, int]) -> int:
         cursor = self.conn.cursor()
 
         insert_stock = '''
             INSERT INTO stocks (portfolio_id, ticker, quantity)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
+            RETURNING id
         '''
 
         ticker, quantity = shares_requested
@@ -297,10 +296,10 @@ class Database:
 
             cursor.execute(insert_stock, (portfolio_id, ticker, quantity))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"insert_stock failed: {e}") from e
 
-        s_id = cursor.lastrowid
+        s_id = cursor.fetchone()[0]
 
         return s_id 
 
@@ -313,20 +312,20 @@ class Database:
     # POSTCONDITION:
     #   -database; stock row deleted
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during delete
+    #   -DatabaseError; PsycopgError occurs during delete
     def delete_stock(self, stock_id : int) -> None:
         cursor = self.conn.cursor()
 
         delete_stock = '''
             DELETE FROM stocks 
-            WHERE id = ?
+            WHERE id = %s
         '''
 
         try:
 
             cursor.execute(delete_stock, (stock_id,))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"delete_stock failed: {e}") from e
 
 
@@ -340,21 +339,21 @@ class Database:
     # POSTCONDITION:
     #   -database; stock quantity incremented by quantity for given stock_id
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during update
+    #   -DatabaseError; PsycopgError occurs during update
     def update_stock(self, stock_id : int, quantity : int) -> None:
         cursor = self.conn.cursor()
 
         update_stock = '''
             UPDATE stocks
-            SET quantity = quantity + ?
-            WHERE id = ?
+            SET quantity = quantity + %s
+            WHERE id = %s
         '''
 
         try:
 
             cursor.execute(update_stock, (quantity, stock_id))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"update_stock failed: {e}") from e
 
 
@@ -368,21 +367,21 @@ class Database:
     # POSTCONDITION:
     #   -database; balance incremented by funds_request for given user_id
     # RAISES:
-    #   -DatabaseError; SqliteError occurs during update
+    #   -DatabaseError; PsycopgError occurs during update
     def update_funds(self, user_id : int, funds_request : float) -> None:
         cursor = self.conn.cursor()
 
         update_funds = '''
             UPDATE users
-            SET balance = balance + ?
-            WHERE id = ?
+            SET balance = balance + %s
+            WHERE id = %s
         '''
 
         try:
 
             cursor.execute(update_funds, (funds_request, user_id))
 
-        except SqliteError as e:
+        except PsycopgError as e:
             raise DatabaseError(f"update_funds failed: {e}") from e
 
 

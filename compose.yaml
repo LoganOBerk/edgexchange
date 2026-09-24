@@ -14,7 +14,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -42,17 +42,24 @@ services:
     container_name: backend
     restart: on-failure
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      - DATABASE_SOURCE=${DATABASE_SOURCE}
+      - CACHE_SOURCE=${CACHE_SOURCE}
     ports:
       - "8000:8000"
     volumes:
       - ./application/backend:/backend
+      - /backend/.venv
     depends_on:
       database:
         condition: service_healthy
       cache:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   frontend:
     build:
@@ -64,15 +71,16 @@ services:
     volumes:
       - ./application/frontend:/frontend
       - /frontend/node_modules
+      - /frontend/.next
     environment:
       - WATCHPACK_POLLING=true
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     restart: always
 
 
 volumes:
-  postgres_data:
+  dbdata:
 
       
