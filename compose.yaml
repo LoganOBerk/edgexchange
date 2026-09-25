@@ -1,87 +1,76 @@
 name: edgexchange
-services:
 
+services:
   database:
-    build:
+    restart: always
+    build: 
       context: ./database
       dockerfile: Dockerfile
-    container_name: database
-    restart: always
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "${DBPORT}:5432"
     environment:
       POSTGRES_USER: ${DBUSER}
       POSTGRES_PASSWORD: ${DBPASSWORD}
       POSTGRES_DB: ${DBNAME}
-    ports:
-      - "${DBPORT}:5432"
-    volumes:
-      - dbdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DBUSER} -d ${DBNAME}"]
+      test: pg_isready -U ${DBUSER} -d ${DBNAME}
       interval: 5s
       timeout: 5s
       retries: 5
 
   cache:
-    build:
+    restart: always
+    build: 
       context: ./cache
       dockerfile: Dockerfile
-    container_name: cache
-    restart: always
     ports:
       - "${CHPORT}:6379"
-    command: "redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''"
+    command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: redis-cli ping
       interval: 5s
       timeout: 3s
       retries: 5
 
   backend:
-    build:
+    restart: on-failure
+    build: 
       context: .
       dockerfile: ./application/backend/Dockerfile
-    container_name: backend
-    restart: on-failure
-    environment:
-      - DATABASE_SOURCE=${DATABASE_SOURCE}
-      - CACHE_SOURCE=${CACHE_SOURCE}
-    ports:
-      - "${BEPORT}:8000"
     volumes:
       - ./application/backend:/backend
-      - /backend/.venv
-    depends_on:
-      database:
-        condition: service_healthy
-      cache:
-        condition: service_healthy
+    ports:
+      - "${BEPORT}:8000"
+    environment:
+      DATABASE_SOURCE: ${DATABASE_SOURCE}
+      CACHE_SOURCE: ${CACHE_SOURCE}
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      test: python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"
       interval: 3s
       timeout: 3s
       retries: 20
       start_period: 10s
+    depends_on:
+      database: { condition: service_healthy }
+      cache: { condition: service_healthy }
 
   frontend:
-    build:
+    restart: always
+    build: 
       context: .
       dockerfile: ./application/frontend/Dockerfile
-    container_name: frontend
-    ports:
-      - "${FEPORT}:3000"
     volumes:
       - ./application/frontend:/frontend
       - /frontend/node_modules
       - /frontend/.next
+    ports:
+      - "${FEPORT}:3000"
     environment:
-      - WATCHPACK_POLLING=true
+      WATCHPACK_POLLING: "true"
     depends_on:
-      backend:
-        condition: service_healthy
-    restart: always
-
+      backend: { condition: service_healthy }
 
 volumes:
   dbdata:
-
-      
