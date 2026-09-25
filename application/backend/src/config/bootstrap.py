@@ -8,14 +8,13 @@ from persistence_layer import Database
 
 # PURPOSE:
 #	-App provides initialization abstraction
-#	-Allows for clean dependency injection and easy swaps between test mode and display type
+#	-Allows for clean dependency injection and easy swaps between display types
 class App:
-    def __init__(self, testing=False, frontend=True):
-        self.init(testing, frontend)
+    def __init__(self, frontend=True):
+        self.init(frontend)
 
 
     # INPUT:
-    #	-testing(bool); whether to run in test mode
     #	-frontend(bool); whether to run FastAPI frontend or CLI
     # OUTPUT: None
     # PRECONDITION:
@@ -23,21 +22,15 @@ class App:
     #	-frontend; is True or False
     # POSTCONDITION:
     #   -self.san; Sanitizer constructed
-    #	-self.db; Database constructed with resolved db_path
+    #	-self.db; Database constructed with db source
     #	-self.serv; Service constructed with self.db injection
     #	-self.val; Validator constructed with self.serv injection
     #	-frontend=True; self.display is Frontend with serv, san, val injection
-    #	-frontend=False; self.vis is Visualizer; self.display is Cli with serv, san, val, vis injection
+    #	-frontend=False; self.display is Cli with serv, san, val injection
     # RAISES: None
-    def init(self, testing : bool, frontend : bool) -> None:
+    def init(self, frontend : bool) -> None:
 
-        if testing:
-            db_source = env.get_database_test_source()
-        else:
-            db_source = env.get_database_source()
-
-        
-        self.db = Database(db_source)
+        self.db = Database(env.get_database_source())
         self.serv = Service(self.db)
         self.val = Validator(self.serv)
         self.san = Sanitizer()

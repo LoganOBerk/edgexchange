@@ -62,18 +62,16 @@ uv run edgexchange
 ### Arguments
 
 ```
-usage: edgexchange [-h] [-t] [-s] [-v %]
+usage: edgexchange [-h] [-s] [-v %]
 
 options:
   -h, --help   show this help message and exit
-  -t, --test   sets program to testing mode
   -s, --serve  program is served on port 0.0.0.0:8000
   -v, --vol %  artificial volatility (percent)
 ```
 
 | Flag | Description |
 |---|---|
-| `-t, --test` | Runs with a local test database instead of live data. Useful for development without affecting real accounts. |
 | `-s, --serve` | Binds to all interfaces (`0.0.0.0`) on port `8000`, making the app accessible on your local network instead of the CLI. |
 | `-v, --vol <percent>` | Injects artificial volatility into stock prices by the given percentage. E.g. `-v 5` adds ±5% variance. |
 
@@ -85,9 +83,6 @@ uv run edgexchange
 
 # Switch to web server instead of CLI
 uv run edgexchange -s
-
-# Development mode with test database and volatility
-uv run edgexchange -t -v 10
 
 # Serve on network with volatility for demos
 uv run edgexchange -s -v 5
