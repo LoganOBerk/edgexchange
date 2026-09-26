@@ -4,7 +4,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 
 WORKDIR /backend
 
-COPY ./application/backend .
+COPY system/application/backend .
 
 RUN uv pip install --system -e .
 

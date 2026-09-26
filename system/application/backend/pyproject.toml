@@ -35,4 +35,4 @@ packages = ["src"]
 edgexchange = "edgexchange:main"
 
 [tool.pytest.ini_options]
-testpaths = ["../../tests"]
+testpaths = ["../../../tests"]

@@ -4,8 +4,8 @@ services:
   database:
     restart: always
     build: 
-      context: ./database
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: system/database/Dockerfile
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
@@ -15,7 +15,7 @@ services:
       POSTGRES_PASSWORD: ${DBPASSWORD}
       POSTGRES_DB: ${DBNAME}
     healthcheck:
-      test: pg_isready -U ${DBUSER} -d ${DBNAME}
+      test: ["CMD", "pg_isready", "-d", "${DBNAME}", "-U", "${DBUSER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,8 +23,8 @@ services:
   cache:
     restart: always
     build: 
-      context: ./cache
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: system/cache/Dockerfile
     ports:
       - "${CHPORT}:6379"
     command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''
@@ -38,9 +38,9 @@ services:
     restart: on-failure
     build: 
       context: .
-      dockerfile: ./application/backend/Dockerfile
+      dockerfile: system/application/backend/Dockerfile
     volumes:
-      - ./application/backend:/backend
+      - ./system/application/backend:/backend
     ports:
       - "${BEPORT}:8000"
     environment:
@@ -60,9 +60,9 @@ services:
     restart: always
     build: 
       context: .
-      dockerfile: ./application/frontend/Dockerfile
+      dockerfile: system/application/frontend/Dockerfile
     volumes:
-      - ./application/frontend:/frontend
+      - ./system/application/frontend:/frontend
       - /frontend/node_modules
       - /frontend/.next
     ports:
