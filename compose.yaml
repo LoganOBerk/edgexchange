@@ -4,8 +4,8 @@ services:
   database:
     restart: always
     build: 
-      context: .
-      dockerfile: system/database/Dockerfile
+      context: ./system/database
+      dockerfile: Dockerfile
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
@@ -23,13 +23,13 @@ services:
   cache:
     restart: always
     build: 
-      context: .
-      dockerfile: system/cache/Dockerfile
+      context: ./system/cache
+      dockerfile: Dockerfile
     ports:
       - "${CHPORT}:6379"
     command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''
     healthcheck:
-      test: redis-cli ping
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -37,17 +37,19 @@ services:
   backend:
     restart: on-failure
     build: 
-      context: .
-      dockerfile: system/application/backend/Dockerfile
+      context: ./system/application/backend
+      dockerfile: Dockerfile
     volumes:
       - ./system/application/backend:/backend
+      - /backend/.venv
     ports:
       - "${BEPORT}:8000"
     environment:
       DATABASE_SOURCE: ${DATABASE_SOURCE}
       CACHE_SOURCE: ${CACHE_SOURCE}
+      PYTHONDONTWRITEBYTECODE: "1"
     healthcheck:
-      test: python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
       interval: 3s
       timeout: 3s
       retries: 20
@@ -59,8 +61,8 @@ services:
   frontend:
     restart: always
     build: 
-      context: .
-      dockerfile: system/application/frontend/Dockerfile
+      context: ./system/application/frontend
+      dockerfile: Dockerfile
     volumes:
       - ./system/application/frontend:/frontend
       - /frontend/node_modules
