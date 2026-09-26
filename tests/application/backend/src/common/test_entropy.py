@@ -64,18 +64,16 @@ def test_set_volatile_percent_does_not_mutate_on_failure(monkeypatch):
     assert entropy._volatile_percent == 50
 
 
-def test_inject_volatility_bounds(monkeypatch):
+def test_volatility_bounds(monkeypatch):
     monkeypatch.setattr(entropy, "_volatile_percent", 20)
-    price = 1000
-    expected_range = 200
+    expected_range = 0.20
 
     for _ in range(10000):
-        assert -expected_range <= entropy.inject_volatility(price) <= expected_range
+        assert 1 - expected_range <= entropy.volatility() <= 1 + expected_range
 
 
-def test_inject_volatility_zero_percent_is_zero(monkeypatch):
+def test_volatility_baseline(monkeypatch):
     monkeypatch.setattr(entropy, "_volatile_percent", 0)
-    price = 1000
 
     for _ in range(100):
-        assert entropy.inject_volatility(price) == 0
+        assert entropy.volatility() == 1
