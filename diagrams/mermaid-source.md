@@ -75,23 +75,23 @@ flowchart TB
 erDiagram
 	direction LR
 	USERS {
-		INTEGER id PK ""  
-		TEXT username UK ""  
-		TEXT password  ""  
-		REAL balance  ""  
+		INTEGER id PK ""
+		CITEXT username UK ""
+		TEXT password ""
+		NUMERIC(18,2) balance "DEFAULT 0"
 	}
 
 	PORTFOLIOS {
-		INTEGER id PK ""  
-		INTEGER user_id FK ""  
-		TEXT name  ""  
+		INTEGER id PK ""
+		INTEGER user_id FK "ON DELETE CASCADE"
+		TEXT name UK "UNIQUE(user_id, name)"
 	}
 
 	STOCKS {
-		INTEGER id PK ""  
-		INTEGER portfolio_id FK ""  
-		TEXT ticker  ""  
-		INTEGER quantity  ""  
+		INTEGER id PK ""
+		INTEGER portfolio_id FK "ON DELETE CASCADE"
+		TEXT ticker UK "UNIQUE(portfolio_id, ticker)"
+		INTEGER quantity ""
 	}
 
 	USERS||--o{PORTFOLIOS:"has"
