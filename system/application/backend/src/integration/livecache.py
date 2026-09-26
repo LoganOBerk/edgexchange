@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import date
 
 from common.errors import FetchingError, LiveCacheError
-from common.entropy import inject_volatility
+from common.entropy import volatility
 from .externalapi import ExternalApi as eapi
 
 
@@ -59,8 +59,7 @@ def write_quote(ticker : str, quote : dict) -> None:
 #    -cache; price, and last_accessed updated for ticker while keeping quote in sync
 # RAISES: None
 def write_price(ticker : str, price : float) -> None:
-    price += inject_volatility(price)
-    cache[ticker]["price"] = price
+    cache[ticker]["price"] = price * volatility()
     sync_price(ticker)
 
 

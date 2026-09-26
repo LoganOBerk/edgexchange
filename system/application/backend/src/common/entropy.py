@@ -31,19 +31,14 @@ def set_volatile_percent(percent : int):
     return percent
 
 
-# INPUT: 
-#   -price(float); a specific stock price
+# INPUT: None
 # OUTPUT:
-#   -artificial_volatility(float); a float drawn randomly +/-(_volatile_percent% of price)
+#   -volatility(float); a random growth factor 
 # PRECONDITION: None
 # POSTCONDITION: 
-#   -artificial volatility; a float that falls within +/-(_volatile_percent% of price)
+#   -volatility; a random growth factor is set 1 +/- _volatile_percent/100
 # RAISES: None
-def inject_volatility(price : float) -> float:
-   
-    volatile_range = price/100 * _volatile_percent
-
-    artificial_volatility = random.uniform(-volatile_range, volatile_range)
-    
-    return artificial_volatility
+def volatility() -> float:
+    volatility = 1 + random.uniform(-_volatile_percent, _volatile_percent)/100
+    return volatility
     
