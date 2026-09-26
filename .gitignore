@@ -29,6 +29,7 @@ next-env.d.ts
 
 # ===== Shared / OS / editor =====
 .env
+.env.test
 .env*.local
 .DS_Store
 *.pem
