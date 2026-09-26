@@ -318,17 +318,16 @@ class Service:
     # POSTCONDITION:
     #   -data; contains all relevant data to portfolios in a json serializable format
     # RAISES: None
-    @staticmethod
-    def serialize(portfolios: list[Portfolio]) -> dict:
+    def map_holdings(self, portfolios: list[Portfolio]) -> dict:
 
-        holdings = set()
-        data = {"portfolios" : []}
+        tickers = set()
+        holdings = {"holdings" : []}
 
         try:
             
-            for portfolio in portfolios: holdings.update(portfolio.stocks.keys())
+            for portfolio in portfolios: tickers.update(portfolio.stocks.keys())
 
-            prices = lcac.get_prices(holdings)
+            prices = lcac.get_prices(tickers)
 
             for portfolio in portfolios:
                 total = 0
@@ -351,12 +350,12 @@ class Service:
                     })
 
                 basket["total"] = total
-                data["portfolios"].append(basket)
+                holdings["holdings"].append(basket)
 
         except LiveCacheError:
             pass
 
-        return data
+        return holdings
 
 
 

@@ -381,7 +381,7 @@ async def get_quote(ticker : str) -> dict[str, dict]:
 # RAISES:
 #   -HTTPException(401); unauthorized, user session does not exist
 #   -HTTPException(404); portfolios are not found   
-@router.get("/portfolios")
+@router.get("/holdings")
 async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
 
     try:
@@ -396,7 +396,7 @@ async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
     if not portfolios:
         raise HTTPException(status_code = 404, detail = "Portfolios not found")
     
-    live_data = api.make_portfolio_stream(portfolios)
+    live_data = api.make_holdings_stream(portfolios)
 
     return StreamingResponse(live_data, media_type = "application/x-ndjson")
 

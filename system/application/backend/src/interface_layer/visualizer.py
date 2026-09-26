@@ -15,24 +15,24 @@ class Visualizer:
 
         
     # INPUT:
-    #   -serialize(callable); returns serialized portfolios in a dict representing json format
+    #   -map_holdings(callable); returns map_holdingsd portfolios in a dict representing json format
     # OUTPUT: None
     # PRECONDITION:
-    #   -serialize; returns a fully serialized dict representing all portfolios user has
+    #   -map_holdings; returns a fully map_holdingsd dict representing all portfolios user has
     # POSTCONDITION:
     #   -self.fig, self.ax, self.ani; constructed and active if no chart exists and data is non-empty, otherwise unchanged
     #   -execution; chart display does not block program
     # RAISES: None
-    def display_pie_chart(self, serialize : callable) -> None:
+    def display_pie_chart(self, map_holdings : callable) -> None:
         PRICE_REFRESH_INTERVAL = 4000
 
-        if self.fig is None and serialize()["portfolios"][0]["stocks"]:
+        if self.fig is None and map_holdings()["holdings"][0]["stocks"]:
             self.fig, self.ax = plt.subplots()
             self.fig.canvas.mpl_connect('close_event', self.clean_up)
 
             def update():
-                portfolio_data = serialize()
-                portfolio = portfolio_data["portfolios"][0]
+                portfolio_data = map_holdings()
+                portfolio = portfolio_data["holdings"][0]
 
                 self.ax.clear()
 

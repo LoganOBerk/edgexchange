@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useSession } from "@/context/SessionContext";
-import { subscribePortfolios } from "@/lib/api";
+import { subscribeHoldings } from "@/lib/api";
 
 const CACHE_KEY = "edgexchange_live_data_v2";
 
@@ -38,10 +38,10 @@ export const PortfolioProvider = ({ children }) => {
         const portfolioNames = Object.keys(user?.portfolios ?? {});
         if (!sessionId || !portfolioNames.length) return;
 
-        const unsubscribe = subscribePortfolios(
+        const unsubscribe = subscribeHoldings(
             sessionId,
             (parsed) => {
-                for (const entry of parsed.portfolios ?? []) {
+                for (const entry of parsed.holdings ?? []) {
                     if (!entry.portfolio) continue;
                     setLiveData((prev) => {
                         const next = {

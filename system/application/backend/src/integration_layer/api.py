@@ -23,9 +23,9 @@ class Api:
         connect(self)
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.serialize() fields
-    def serialize(self, portfolios):
-        return self.serv.serialize(portfolios)
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.map_holdings() fields
+    def map_holdings(self, portfolios):
+        return self.serv.map_holdings(portfolios)
 
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective Service.create_account() fields
@@ -152,13 +152,13 @@ class Api:
     # POSTCONDITION:
     #   -return; yields JSON serialized portfolio data every second until client disconnects
     # RAISES: None
-    def make_portfolio_stream(self, portfolios) -> AsyncGenerator:
+    def make_holdings_stream(self, portfolios) -> AsyncGenerator:
         PRICE_REFRESH_INTERVAL = 4
 
         async def stream():
             while True:
               
-                data = self.serialize(portfolios)
+                data = self.map_holdings(portfolios)
 
                 if data:
                     yield json.dumps(data) + "\n"

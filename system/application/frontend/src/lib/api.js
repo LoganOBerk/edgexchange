@@ -51,10 +51,10 @@ function streamNdjson(url, onData, onError) {
     return () => controller.abort();
 }
 
-// Streams all of the session's portfolios; backend sends every portfolio
+// Streams all of the session's holdings; backend sends every portfolio
 // on this connection, there is no per-portfolio filtering.
-export function subscribePortfolios(session_id, onData, onError) {
-    return streamNdjson(`${BASE}/portfolios?session_id=${session_id}`, onData, onError);
+export function subscribeHoldings(session_id, onData, onError) {
+    return streamNdjson(`${BASE}/holdings?session_id=${session_id}`, onData, onError);
 }
 
 // Streams live quote updates for a single ticker.
