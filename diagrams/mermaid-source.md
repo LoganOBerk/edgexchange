@@ -21,7 +21,6 @@ flowchart TB
   end
  subgraph TAIL2[" "]
     direction LR
-        DOM["Domain Models"]
         I[("&nbsp;&nbsp;&nbsp;&nbsp;Database&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;")]
         LC["LiveCache"]
         LCPAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
@@ -37,7 +36,7 @@ flowchart TB
     F --> E
     E --> G
     G --> H
-    H --> DOM & I & LC
+    H --> I & LC
     LC --> EXT["External API"]
 
     VIZ@{ shape: curv-trap}
@@ -54,7 +53,6 @@ flowchart TB
     class E sanitization
     class G validation
     class H service
-    class DOM domain
     class I persistence
     classDef config fill:#D6CDBB,stroke:#6E634C,color:#2E2818
     classDef interface fill:#D2C4E3,stroke:#5C4A85,color:#2C2145
@@ -65,7 +63,6 @@ flowchart TB
     classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
     classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
     classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
-    classDef domain fill:#D9A9C5,stroke:#84315E,color:#421830
     classDef spacer fill:none,stroke:none,color:none
     style TOPROW fill:none,stroke:none
     style PIPE fill:none,stroke:none
@@ -138,7 +135,7 @@ flowchart TD
     B --> C[" Sanitizer.sanitize_credentials  "]
     C --> D["   Validator.account_validator    "]
     D --> E["     Service.find_account      "]
-    E --> F[("       Database.pull_account       ")]
+    E --> F[("       Database.pull_aggregate       ")]
 
     A:::client
     B:::integration
