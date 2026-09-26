@@ -1,6 +1,6 @@
 from .visualizer import Visualizer
 from common.errors import ValidationError
-from integration_layer import Api
+from integration import Api
 
 # INPUT:
 #   -selection(str); a selection input

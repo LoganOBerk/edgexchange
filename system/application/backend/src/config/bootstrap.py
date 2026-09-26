@@ -1,9 +1,9 @@
 from .environment import Environment as env
-from interface_layer import Cli, Frontend
-from sanitization_layer import Sanitizer
-from validation_layer import Validator
-from service_layer import Service
-from persistence_layer import Database
+from interface import Cli, Frontend
+from sanitization import Sanitizer
+from validation import Validator
+from orchestration import Service
+from persistence import Database
 
 
 # PURPOSE:
