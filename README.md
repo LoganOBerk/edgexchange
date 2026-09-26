@@ -34,7 +34,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ```bash
 git clone https://github.com/LoganOBerk/edgexchange.git
-cd edgexchange/application/backend
+cd edgexchange/system/application/backend
 uv sync
 uv run edgexchange
 ```
@@ -42,7 +42,7 @@ uv run edgexchange
 **3. Open a second terminal wherever your repo is cloned and start the frontend:**
 
 ```bash
-cd edgexchange/application/frontend
+cd edgexchange/system/application/frontend
 npm install next
 npm run dev
 ```
