@@ -1,13 +1,16 @@
 from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
-from domain_models import User, Portfolio, Stock
+
+from .domain_models import User, Portfolio, Stock
 from integration_layer import LiveCache as lcac
-from persistence_layer import StoredAccount, StoredUser
+from persistence_layer import StoredAggregate, StoredUser
+
+
 
 
 
 # INPUT:
-#   -data(StoredAccount); all data related to user account
+#   -data(StoredAggregate); all data related to user
 # OUTPUT:
 #   -user(User); a fully populated user object
 # PRECONDITION:
@@ -15,7 +18,7 @@ from persistence_layer import StoredAccount, StoredUser
 # POSTCONDITION:
 #   -user; populated with id, username, balance, all portfolios and their stocks from database
 # RAISES: None
-def build(data : StoredAccount) -> User:
+def build_user(data : StoredAggregate) -> User:
     user = User(id = data.user.id, username = data.user.username, balance = data.user.balance)
 
     for portfolio in data.portfolios:
@@ -107,7 +110,7 @@ class Service:
     def find_account(self, username : str) -> User:
         try:
 
-            user = build(self.db.pull_account(username))
+            user = build_user(self.db.pull_aggregate(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
@@ -136,94 +139,94 @@ class Service:
     
     
     # INPUT:
-    #   -user_account(User); current user account
+    #   -user(User); current user
     #   -funds_request(float); amount of money to add to balance 
     # OUTPUT: None
     # PRECONDITION:
-    #   -user_account; account info is up to date
+    #   -user; account info is up to date
     #   -funds_request; > 0
     # POSTCONDITION: 
     #   -database; see Database.update_funds() POSTCONDITION
-    #   -user_account; funds are added to account
+    #   -user; funds are added to account
     # RAISES:
     #   -ServiceError; database call fails
-    def fund_account(self, user_account : User, funds_request : float) -> None:
+    def fund_account(self, user : User, funds_request : float) -> None:
         try:
 
             with self.db.transaction():
-                self.db.update_funds(user_account.id, funds_request)
+                self.db.update_funds(user.id, funds_request)
 
         except DatabaseError as e:
             raise ServiceError("Failed to update funds") from e
 
-        user_account.add_funds(funds_request)
+        user.add_funds(funds_request)
         
 
     # INPUT:
-    #   -user_account(User); current user account
+    #   -user(User); current user
     #   -portfolio_name(str); name of portfolio to create
     # OUTPUT: None
     # PRECONDITION:
-    #   -user_account; account info is up to date
+    #   -user; account info is up to date
     #   -portfolio_name; see Validator.portfolio_validator() POSTCONDITION
     # POSTCONDITION: 
     #   -database; see Database.insert_portfolio() POSTCONDITION
-    #   -user_account; empty portfolio with portfolio_name is added to account
+    #   -user; empty portfolio with portfolio_name is added to account
     # RAISES:
     #   -ServiceError; database call fails
-    def create_portfolio(self, user_account : User, portfolio_name : str) -> None:
+    def create_portfolio(self, user : User, portfolio_name : str) -> None:
         try:
 
             with self.db.transaction():
-                p_id = self.db.insert_portfolio(user_account.id, portfolio_name)
+                p_id = self.db.insert_portfolio(user.id, portfolio_name)
 
         except DatabaseError as e:
             raise ServiceError("Failed to create portfolio") from e
 
-        user_account.add_portfolio(portfolio_name, p_id)
+        user.add_portfolio(portfolio_name, p_id)
 
 
     # INPUT:
-    #   -user_account(User); current user account
+    #   -user(User); current user
     #   -portfolio_name(str); name of portfolio to remove
     # OUTPUT: None
     # PRECONDITION:
-    #   -user_account; account info is up to date
+    #   -user; account info is up to date
     #   -portfolio_name; see Validator.portfolio_validator() POSTCONDITION
     # POSTCONDITION:
     #   -database; see Database.delete_portfolio() POSTCONDITION
-    #   -user_account; portfolio is removed from in memory account
+    #   -user; portfolio is removed from in memory account
     # RAISES:
     #   -ServiceError; database call fails
-    def remove_portfolio(self, user_account : User, portfolio_name : str) -> None:
+    def remove_portfolio(self, user : User, portfolio_name : str) -> None:
         try:
 
-            portfolio = user_account.portfolios[portfolio_name]
+            portfolio = user.portfolios[portfolio_name]
             with self.db.transaction():
                 self.db.delete_portfolio(portfolio.id)
 
         except DatabaseError as e:
             raise ServiceError("Failed to remove portfolio") from e
 
-        user_account.remove_portfolio(portfolio_name)
+        user.remove_portfolio(portfolio_name)
 
 
     # INPUT: 
-    #   -user_account(User); current user account
+    #   -user(User); current user
     #   -portfolio(Portfolio); some portfolio belonging to current user
     #   -shares_request(tuple[str,int]); requested stock ticker and quantity
     # OUTPUT: None
     # PRECONDITION:
-    #   -user_account; account info is up to date
+    #   -user; account info is up to date
     #   -portfolio; portfolio is up to date
     #   -shares_request; see Validator.shares_request_validator() POSTCONDITION
     # POSTCONDITION:
     #   -database; if ticker exists in portfolio see Database.update_stock(), else see Database.insert_stock() POSTCONDITION
-    #   -user_account; balance is decremented based on purchase cost
+    #   -user; balance is decremented based on purchase cost
     #   -portfolio; stock with matching ticker is added with quantity or updated
     # RAISES:
     #   -ServiceError; database call fails or LiveCache call fails
-    def execute_buy(self, user_account : User, portfolio : Portfolio, shares_request : tuple[str, int]) -> None:
+    def execute_buy(self, user : User, portfolio : Portfolio, shares_request : tuple[str, int]) -> None:
         
         try:
 
@@ -236,7 +239,7 @@ class Service:
 
 
             with self.db.transaction():
-                self.db.update_funds(user_account.id, -total_cost)
+                self.db.update_funds(user.id, -total_cost)
             
                 if portfolio.has_stock(ticker):
                     stock = portfolio.stocks[ticker]
@@ -247,26 +250,26 @@ class Service:
         except (DatabaseError, LiveCacheError) as e:
             raise ServiceError("Failed to execute buy") from e
 
-        user_account.sub_funds(total_cost)
+        user.sub_funds(total_cost)
         portfolio.buy_shares(shares_request, s_id)
         
 
     # INPUT: 
-    #   -user_account(User); current user account
+    #   -user(User); current user
     #   -portfolio(Portfolio); some portfolio belonging to current user
     #   -shares_request(tuple[str,int]); requested stock ticker and quantity
     # OUTPUT: None
     # PRECONDITION:
-    #   -user_account; account info is up to date
+    #   -user; account info is up to date
     #   -portfolio; portfolio is up to date
     #   -shares_request; see Validator.shares_request_validator() POSTCONDITION
     # POSTCONDITION:
     #   -database; if quantity equals current holdings see Database.delete_stock(), else see Database.update_stock() POSTCONDITION
-    #   -user_account; balance is incremented by sale value
+    #   -user; balance is incremented by sale value
     #   -portfolio; stock with matching ticker is updated or removed
     # RAISES:
     #   -ServiceError; database call fails or LiveCache call fails
-    def execute_sell(self, user_account : User, portfolio : Portfolio, shares_request : tuple[str, int]) -> None:
+    def execute_sell(self, user : User, portfolio : Portfolio, shares_request : tuple[str, int]) -> None:
         
         try:
 
@@ -277,7 +280,7 @@ class Service:
 
 
             with self.db.transaction():
-                self.db.update_funds(user_account.id, total_value)
+                self.db.update_funds(user.id, total_value)
 
                 stock = portfolio.stocks[ticker]
 
@@ -289,7 +292,7 @@ class Service:
         except (DatabaseError, LiveCacheError) as e:
             raise ServiceError("Failed to execute sell") from e
 
-        user_account.add_funds(total_value)
+        user.add_funds(total_value)
         portfolio.sell_shares(shares_request)
 
 
