@@ -144,13 +144,13 @@ class Api:
     
     
     # INPUT:
-    #   -portfolios(list[Portfolio]); all users portfolios
+    #   -portfolios(list[Portfolio]); all users holdings
     # OUTPUT:
-    #   -return(AsyncGenerator); a async generator that yields live portfolio data
+    #   -return(AsyncGenerator); a async generator that yields live holdings
     # PRECONDITION:
     #   -portfolios; are not None
     # POSTCONDITION:
-    #   -return; yields JSON serialized portfolio data every second until client disconnects
+    #   -return; yields JSON serialized holdings until client disconnects
     # RAISES: None
     def make_holdings_stream(self, portfolios) -> AsyncGenerator:
         PRICE_REFRESH_INTERVAL = 4

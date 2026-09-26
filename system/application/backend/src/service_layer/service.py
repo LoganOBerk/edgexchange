@@ -313,10 +313,10 @@ class Service:
     # INPUT:
     #   -portfolios(list[Portfolio]); users portfolios
     # OUTPUT:
-    #   -data(dict); detailed construction of all portfolios holdings
+    #   -holdings(dict); detailed construction of all portfolios holdings
     # PRECONDITION: None
     # POSTCONDITION:
-    #   -data; contains all relevant data to portfolios in a json serializable format
+    #   -holdings; contains all up to date portfolio data for all user holdings 
     # RAISES: None
     def map_holdings(self, portfolios: list[Portfolio]) -> dict:
 
