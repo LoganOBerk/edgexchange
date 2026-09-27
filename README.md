@@ -119,7 +119,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
 <table width="100%">
 <tr>
 <td align="center" valign="top" width="33%">
-<strong><h3>Create Account</h3></strong><br><br>
+<strong>Create Account</strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
   <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipeline" width="100%">
@@ -127,7 +127,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </td>
 
 <td align="center" valign="top" width="33%">
-<strong><h3>Find Account</h3></strong><br><br>
+<strong>Find Account</strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
   <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipeline" width="100%">
@@ -135,7 +135,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </td>
 
 <td align="center" valign="top" width="33%">
-<strong><h3>Fund Account</h3></strong><br><br>
+<strong>Fund Account</strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
   <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipeline" width="100%">
@@ -145,7 +145,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 <tr>
 <td align="center" valign="top" width="33%">
-<strong><h3>Create / Remove Portfolio</h3></strong><br><br>
+<strong>Create / Remove Portfolio</strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
   <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create or Remove Portfolio Pipeline" width="100%">
@@ -153,7 +153,7 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </td>
 
 <td align="center" valign="top" width="33%">
-<strong><h3>Execute Buy / Sell</h3></strong><br><br>
+<strong>Execute Buy / Sell</strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
   <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy or Sell Pipeline" width="100%">
