@@ -118,52 +118,58 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 <table width="100%">
 <tr>
-<td align="center" valign="top" width="33%">
-<span style="font-size:14px; font-weight:600;">Create Account</span><br><br>
+<td align="center" valign="top" width="33%"><strong>Create Account</strong></td>
+<td align="center" valign="top" width="33%"><strong>Find Account</strong></td>
+<td align="center" valign="top" width="33%"><strong>Fund Account</strong></td>
+</tr>
+
+<tr>
+<td align="center" valign="bottom" width="33%">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
-  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipeline" width="100%" style="display:block; margin:0 auto;">
+  <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipeline" width="100%">
 </picture>
 </td>
 
-<td align="center" valign="top" width="33%">
-<span style="font-size:14px; font-weight:600;">Find Account</span><br><br>
+<td align="center" valign="bottom" width="33%">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
-  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipeline" width="100%" style="display:block; margin:0 auto;">
+  <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipeline" width="100%">
 </picture>
 </td>
 
-<td align="center" valign="top" width="33%">
-<span style="font-size:14px; font-weight:600;">Fund Account</span><br><br>
+<td align="center" valign="bottom" width="33%">
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
-  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipeline" width="100%" style="display:block; margin:0 auto;">
+  <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipeline" width="100%">
 </picture>
 </td>
 </tr>
 
 <tr>
-<td align="center" valign="top" width="33%">
-<span style="font-size:14px; font-weight:600;">Create / Remove Portfolio</span><br><br>
-<picture>
-  <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
-  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create or Remove Portfolio Pipeline" width="100%" style="display:block; margin:0 auto;">
-</picture>
-</td>
-
-<td align="center" valign="top" width="33%">
-<span style="font-size:14px; font-weight:600;">Execute Buy / Sell</span><br><br>
-<picture>
-  <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
-  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy or Sell Pipeline" width="100%" style="display:block; margin:0 auto;">
-</picture>
-</td>
-
+<td align="center" valign="top" width="33%"><strong>Create / Remove Portfolio</strong></td>
+<td align="center" valign="top" width="33%"><strong>Execute Buy / Sell</strong></td>
 <td valign="top" width="33%"></td>
 </tr>
-</table>
 
+<tr>
+<td align="center" valign="bottom" width="33%">
+<picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
+  <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create or Remove Portfolio Pipeline" width="100%">
+</picture>
+</td>
+
+<td align="center" valign="bottom" width="33%">
+<picture>
+  <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
+  <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy or Sell Pipeline" width="100%">
+</picture>
+</td>
+
+<td valign="bottom" width="33%"></td>
+</tr>
+</table>
 
 
 ## Program Documentation Guidelines
