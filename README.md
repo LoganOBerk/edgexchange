@@ -118,24 +118,24 @@ Core feature pipelines with traversal through layers and main method calls exclu
 
 <table width="100%">
 <tr>
-<td align="center" width="33%">
-<strong>Create Account</strong><br><br>
+<td align="center" valign="top" width="33%">
+<strong><h3>Create Account</h3></strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create-account.svg">
   <img src="diagrams/system-pipelines-create-account.png" alt="Create Account Pipeline" width="100%">
 </picture>
 </td>
 
-<td align="center" width="33%">
-<strong>Find Account</strong><br><br>
+<td align="center" valign="top" width="33%">
+<strong><h3>Find Account</h3></strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-find-account.svg">
   <img src="diagrams/system-pipelines-find-account.png" alt="Find Account Pipeline" width="100%">
 </picture>
 </td>
 
-<td align="center" width="33%">
-<strong>Fund Account</strong><br><br>
+<td align="center" valign="top" width="33%">
+<strong><h3>Fund Account</h3></strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-fund-account.svg">
   <img src="diagrams/system-pipelines-fund-account.png" alt="Fund Account Pipeline" width="100%">
@@ -144,23 +144,23 @@ Core feature pipelines with traversal through layers and main method calls exclu
 </tr>
 
 <tr>
-<td align="center" width="33%">
-<strong>Create / Remove Portfolio</strong><br><br>
+<td align="center" valign="top" width="33%">
+<strong><h3>Create / Remove Portfolio</h3></strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-create_or_remove-portfolio.svg">
   <img src="diagrams/system-pipelines-create_or_remove-portfolio.png" alt="Create or Remove Portfolio Pipeline" width="100%">
 </picture>
 </td>
 
-<td align="center" width="33%">
-<strong>Execute Buy / Sell</strong><br><br>
+<td align="center" valign="top" width="33%">
+<strong><h3>Execute Buy / Sell</h3></strong><br><br>
 <picture>
   <source type="image/svg+xml" srcset="diagrams/system-pipelines-execute_buy_or_sell.svg">
   <img src="diagrams/system-pipelines-execute_buy_or_sell.png" alt="Execute Buy or Sell Pipeline" width="100%">
 </picture>
 </td>
 
-<td width="33%"></td>
+<td valign="top" width="33%"></td>
 </tr>
 </table>
 

@@ -71,7 +71,7 @@ flowchart TB
     linkStyle 3 stroke:none
 
 # Database Architecture
-%%{init: {'themeVariables': {'lineColor': '#FF6D00', 'edgeLabelBackground': '#FFFFFF'}}}%%
+%%{init: {'themeVariables': {'lineColor': '#00C2A8', 'edgeLabelBackground': '#FFFFFF'}}}%%
 erDiagram
 	direction LR
 	USERS {
@@ -97,17 +97,17 @@ erDiagram
 	USERS||--o{PORTFOLIOS:"has"
 	PORTFOLIOS||--o{STOCKS:"contains"
 
-	style USERS fill:#B7A17Ecc,stroke:#7C5527,color:#3E2A12
-	style PORTFOLIOS fill:#D3B78Dcc,stroke:#7C5527,color:#3E2A12
-	style STOCKS fill:#C9AD82cc,stroke:#6E4A20,color:#2E2010
+	style USERS fill:#A0603Ccc,stroke:#5C3620,color:#FBF0E9
+	style PORTFOLIOS fill:#B8734Bcc,stroke:#5C3620,color:#FBF0E9
+	style STOCKS fill:#8C4E30cc,stroke:#5C3620,color:#FBF0E9
 
 # Create Account
 flowchart TD
-    A(["client"]) --> B["    Api.create_account     "]
-    B --> C[" Sanitizer.sanitize_credentials  "]
-    C --> D["   Validator.account_validator    "]
-    D --> E["    Service.create_account     "]
-    E --> F[("       Database.insert_user        ")]
+    A(["client"]) --> B["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Api.create_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    B --> C["&nbsp;&nbsp;&nbsp;Sanitizer.sanitize_credentials&nbsp;&nbsp;&nbsp;&nbsp;"]
+    C --> D["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Validator.account_validator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    D --> E["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service.create_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    E --> F[("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Database.insert_user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")]
 
     A:::client
     B:::integration
@@ -116,26 +116,26 @@ flowchart TD
     E:::service
     F:::persistence
 
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    classDef client fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef integration fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitization fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validation fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef service fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistence fill:#A0603C,stroke:#5C3620,color:#FBF0E9
 
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
+    linkStyle 0 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#00C2A8,stroke-width:2.5px
 
 # Find Account
 flowchart TD
-    A(["client"]) --> B["     Api.find_account      "]
-    B --> C[" Sanitizer.sanitize_credentials  "]
-    C --> D["   Validator.account_validator    "]
-    D --> E["     Service.find_account      "]
-    E --> F[("       Database.pull_aggregate       ")]
+    A(["client"]) --> B["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Api.find_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    B --> C["&nbsp;&nbsp;&nbsp;Sanitizer.sanitize_credentials&nbsp;&nbsp;&nbsp;&nbsp;"]
+    C --> D["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Validator.account_validator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    D --> E["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service.find_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    E --> F[("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Database.pull_aggregate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")]
 
     A:::client
     B:::integration
@@ -144,26 +144,26 @@ flowchart TD
     E:::service
     F:::persistence
 
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    classDef client fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef integration fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitization fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validation fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef service fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistence fill:#A0603C,stroke:#5C3620,color:#FBF0E9
 
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
+    linkStyle 0 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#00C2A8,stroke-width:2.5px
 
 # Fund Account
 flowchart TD
-    A(["client"]) --> B["     Api.fund_account      "]
-    B --> C["Sanitizer.sanitize_funds_request "]
-    C --> D["     Validator.fund_validator     "]
-    D --> E["     Service.fund_account      "]
-    E --> F[("       Database.update_funds       ")]
+    A(["client"]) --> B["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Api.fund_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    B --> C["&nbsp;&nbsp;Sanitizer.sanitize_funds_request&nbsp;&nbsp;&nbsp;"]
+    C --> D["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Validator.fund_validator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    D --> E["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service.fund_account&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    E --> F[("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Database.update_funds&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")]
 
     A:::client
     B:::integration
@@ -172,26 +172,26 @@ flowchart TD
     E:::service
     F:::persistence
 
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    classDef client fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef integration fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitization fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validation fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef service fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistence fill:#A0603C,stroke:#5C3620,color:#FBF0E9
 
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
+    linkStyle 0 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#00C2A8,stroke-width:2.5px
 
 # Create/Remove Portfolio
 flowchart TD
-    A(["client"]) --> B["Api.create/remove_portfolio"]
-    B --> C["Sanitizer.sanitize_portfolio_name"]
-    C --> D["  Validator.portfolio_validator   "]
-    D --> E["Service.create/remove_portfolio"]
-    E --> F[(" Database.insert/delete_portfolio  ")]
+    A(["client"]) --> B["&nbsp;&nbsp;Api.create/remove_portfolio&nbsp;&nbsp;"]
+    B --> C["&nbsp;&nbsp;Sanitizer.sanitize_portfolio_name&nbsp;&nbsp;"]
+    C --> D["&nbsp;&nbsp;&nbsp;&nbsp;Validator.portfolio_validator&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    D --> E["&nbsp;&nbsp;Service.create/remove_portfolio&nbsp;&nbsp;"]
+    E --> F[("&nbsp;&nbsp;&nbsp;Database.insert/delete_portfolio&nbsp;&nbsp;&nbsp;&nbsp;")]
 
     A:::client
     B:::integration
@@ -200,26 +200,26 @@ flowchart TD
     E:::service
     F:::persistence
 
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    classDef client fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef integration fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitization fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validation fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef service fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistence fill:#A0603C,stroke:#5C3620,color:#FBF0E9
 
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
+    linkStyle 0 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#00C2A8,stroke-width:2.5px
 
 # Execute Buy/Sell
 flowchart TD
-    A(["client"]) --> B["   Api.execute_buy/sell    "]
-    B --> C["Sanitizer.sanitize_shares_request"]
-    C --> D["Validator.shares_request_validator"]
-    D --> E["   Service.execute_buy/sell    "]
-    E --> F[("Database.update/insert/delete_stock")]
+    A(["client"]) --> B["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Api.execute_buy/sell&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    B --> C["&nbsp;&nbsp;Sanitizer.sanitize_shares_request&nbsp;&nbsp;"]
+    C --> D["&nbsp;&nbsp;Validator.shares_request_validator&nbsp;&nbsp;"]
+    D --> E["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service.execute_buy/sell&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    E --> F[("&nbsp;&nbsp;Database.update/insert/delete_stock&nbsp;&nbsp;")]
 
     A:::client
     B:::integration
@@ -228,15 +228,15 @@ flowchart TD
     E:::service
     F:::persistence
 
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    classDef client fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef integration fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitization fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validation fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef service fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistence fill:#A0603C,stroke:#5C3620,color:#FBF0E9
 
-    linkStyle 0 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 1 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 2 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:#FF5A00,stroke-width:2.5px,fill:none
-    linkStyle 4 stroke:#FF5A00,stroke-width:2.5px
+    linkStyle 0 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 1 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 3 stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 4 stroke:#00C2A8,stroke-width:2.5px
