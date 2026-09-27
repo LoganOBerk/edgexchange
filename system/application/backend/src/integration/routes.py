@@ -10,6 +10,7 @@ from .pydantic_models.responses import UserData, PortfolioData
 api = None
 router = APIRouter()
 
+
 # INPUT:
 #   -interface(Api); functional interface
 # OUTPUT: None

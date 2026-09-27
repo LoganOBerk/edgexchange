@@ -2,7 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from integration import Api, router
+from interface import Api
+from integration import connect, router
 
 
 # PURPOSE: 
@@ -10,10 +11,9 @@ from integration import Api, router
 #   -Allows for frontend connection to the system through Api routes
 class Frontend:
     def __init__(self, service, sanitizer, validator):
+        connect(Api(service, sanitizer, validator))
 
         origins = ["http://localhost:3000"]
-
-        Api(service, sanitizer, validator).link_routes()
 
         self.app = FastAPI()
         self.app.add_middleware(CORSMiddleware, allow_origins = origins, allow_methods = ['*'], allow_headers = ['*'])

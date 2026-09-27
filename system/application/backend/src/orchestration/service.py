@@ -2,7 +2,7 @@ from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
 
 from .domain_models import User, Portfolio, Stock
-from integration import LiveCache as lcac
+from procurement import LiveCache as lcac
 from persistence import StoredAggregate, StoredUser
 
 

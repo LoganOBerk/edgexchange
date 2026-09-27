@@ -1,11 +1,8 @@
 import sys
 import json
 import asyncio
-
 from typing import AsyncGenerator
-
 from common.errors import ValidationError
-from .routes import connect
 
 
 # PURPOSE:
@@ -16,13 +13,8 @@ class Api:
         self.serv = service
         self.validator = validator
         self.san = sanitizer
+
     
-
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective .routes connect() fields
-    def link_routes(self):
-        connect(self)
-
-
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION/RAISES: see respective Service.map_holdings() fields
     def map_holdings(self, portfolios):
         return self.serv.map_holdings(portfolios)
