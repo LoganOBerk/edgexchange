@@ -5,11 +5,10 @@ config:
     edgeLabelBackground: '#FFFFFF'
 ---
 flowchart TB
- subgraph TOPROW[" "]
-    direction LR
-        SPL1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+ subgraph APPCLIENT[" "]
+    direction TB
         A(["App.run"])
-        SPR1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+        D(("Client"))
   end
  subgraph PIPE[" "]
     direction LR
@@ -17,22 +16,24 @@ flowchart TB
         F[["Api"]]
         G[["Validator"]]
         H[["Service"]]
-        HPAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
   end
  subgraph TAIL2[" "]
     direction LR
         I[("&nbsp;&nbsp;&nbsp;&nbsp;Database&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;")]
-        LC["LiveCache"]
         LCPAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+        LC["LiveCache"]
   end
-    A --> C[/"Frontend"/] & B[/"Cli"/]
+    A --> C[/"Frontend"/]
+    A --> B[/"Cli"/]
+    A ~~~ D
+    D --> C
+    D --> B
     B -.-> VIZ["Visualizer"]
     VIZ ~~~ ERR["Errors"]
-    B --> D(("Client"))
-    C --> D
-    D -- FRONTEND --> R[["Routes"]]
-    D -- CLI --> F
-    R --> SC["SessionCache"] & F
+    C --> R[["Routes"]]
+    B --> F
+    R --> SC["SessionCache"]
+    R --> F
     F --> E
     E --> G
     G --> H
@@ -44,31 +45,36 @@ flowchart TB
     SC@{ shape: win-pane}
     LC@{ shape: win-pane}
     EXT@{ shape: cloud}
-    class SPL1,SPR1,HPAD,LCPAD spacer
-    class A config
+    class A appRunLayer
+    class D clientLayer
     class C,B,VIZ interface
     class ERR errorNode
-    class D client
-    class R,F,SC,LC,EXT integration
-    class E sanitization
-    class G validation
-    class H service
-    class I persistence
-    classDef config fill:#D6CDBB,stroke:#6E634C,color:#2E2818
-    classDef interface fill:#D2C4E3,stroke:#5C4A85,color:#2C2145
-    classDef client fill:#B7D6D3,stroke:#3D6E6C,color:#1B3534
-    classDef errorNode fill:#E3BCB5,stroke:#96453A,color:#4A211B
-    classDef integration fill:#E5CD97,stroke:#957230,color:#4A3714
-    classDef sanitization fill:#B8D4AB,stroke:#4B7A3A,color:#243D1C
-    classDef validation fill:#AEC2DE,stroke:#3E5D8C,color:#1E2E45
-    classDef service fill:#D5D89E,stroke:#767F2E,color:#393D16
-    classDef persistence fill:#D3B78D,stroke:#7C5527,color:#3E2A12
+    class F apiLayer
+    class E sanitizerLayer
+    class G validatorLayer
+    class H serviceLayer
+    class I databaseLayer
+    class LC,EXT cacheExternalLayer
+    class R,SC routesSessionLayer
+    class LCPAD spacer
+    classDef appRunLayer fill:#C9CACC,stroke:#6B6E72,color:#2A2C2E
+    classDef clientLayer fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
+    classDef interface fill:#B08FCC,stroke:#4A3670,color:#F5F2FA
+    classDef errorNode fill:#D9564A,stroke:#8C2A21,color:#FCF0EF
+    classDef apiLayer fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef sanitizerLayer fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
+    classDef validatorLayer fill:#D9C22E,stroke:#8C7A14,color:#3A3308
+    classDef serviceLayer fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef databaseLayer fill:#A0603C,stroke:#5C3620,color:#FBF0E9
+    classDef cacheExternalLayer fill:#D9247A,stroke:#8C1450,color:#FCE9F3
+    classDef routesSessionLayer fill:#5C6E7A,stroke:#2E3944,color:#F0F3F5
     classDef spacer fill:none,stroke:none,color:none
-    style TOPROW fill:none,stroke:none
+    style APPCLIENT fill:none,stroke:none
     style PIPE fill:none,stroke:none
     style TAIL2 fill:none,stroke:none
-    linkStyle default stroke:#FF6D00,stroke-width:2.5px,fill:none
-    linkStyle 3 stroke:none
+    linkStyle default stroke:#00C2A8,stroke-width:2.5px,fill:none
+    linkStyle 2 stroke:none
+    linkStyle 6 stroke:none
 
 # Database Architecture
 %%{init: {'themeVariables': {'lineColor': '#00C2A8', 'edgeLabelBackground': '#FFFFFF'}}}%%
