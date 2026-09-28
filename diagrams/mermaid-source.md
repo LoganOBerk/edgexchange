@@ -47,27 +47,27 @@ flowchart TB
     EXT@{ shape: cloud}
     class A appRunLayer
     class D clientLayer
-    class C,B,VIZ interface
+    class C,B,VIZ presentationLayer
     class ERR errorNode
-    class F apiLayer
+    class F interfaceLayer
     class E sanitizerLayer
     class G validatorLayer
-    class H serviceLayer
-    class I databaseLayer
-    class LC,EXT cacheExternalLayer
-    class R,SC routesSessionLayer
+    class H orchestrationLayer
+    class I persistenceLayer
+    class LC,EXT procurementLayer
+    class R,SC IntegrationLayer
     class LCPAD spacer
     classDef appRunLayer fill:#C9CACC,stroke:#6B6E72,color:#2A2C2E
     classDef clientLayer fill:#5C8AD6,stroke:#2A4C8C,color:#F5F8FC
-    classDef interface fill:#B08FCC,stroke:#4A3670,color:#F5F2FA
+    classDef presentationLayer fill:#B08FCC,stroke:#4A3670,color:#F5F2FA
     classDef errorNode fill:#D9564A,stroke:#8C2A21,color:#FCF0EF
-    classDef apiLayer fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
+    classDef interfaceLayer fill:#E38A2E,stroke:#8C4E14,color:#FCF3E8
     classDef sanitizerLayer fill:#5FA854,stroke:#2E5C28,color:#F0F8EE
     classDef validatorLayer fill:#D9C22E,stroke:#8C7A14,color:#3A3308
-    classDef serviceLayer fill:#2A4C8C,stroke:#152645,color:#EEF2FA
-    classDef databaseLayer fill:#A0603C,stroke:#5C3620,color:#FBF0E9
-    classDef cacheExternalLayer fill:#D9247A,stroke:#8C1450,color:#FCE9F3
-    classDef routesSessionLayer fill:#5C6E7A,stroke:#2E3944,color:#F0F3F5
+    classDef orchestrationLayer fill:#2A4C8C,stroke:#152645,color:#EEF2FA
+    classDef persistenceLayer fill:#A0603C,stroke:#5C3620,color:#FBF0E9
+    classDef procurementLayer fill:#D9247A,stroke:#8C1450,color:#FCE9F3
+    classDef IntegrationLayer fill:#5C6E7A,stroke:#2E3944,color:#F0F3F5
     classDef spacer fill:none,stroke:none,color:none
     style APPCLIENT fill:none,stroke:none
     style PIPE fill:none,stroke:none
