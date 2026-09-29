@@ -6,9 +6,9 @@ load_dotenv()
 class Environment:
 
     @staticmethod
-    def get_database_source():
+    def db_src():
         return os.getenv("DATABASE_SOURCE")
 
     @staticmethod
-    def get_database_test_source():
+    def db_tsrc():
         return os.getenv("DATABASE_TEST_SOURCE")

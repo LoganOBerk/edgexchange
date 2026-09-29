@@ -11,9 +11,6 @@ from persistence import Database
 #	-App provides initialization abstraction
 #	-Allows for clean dependency injection and easy swaps between display types
 class App:
-    def __init__(self, frontend=True):
-        self.init(frontend)
-
 
     # INPUT:
     #	-frontend(bool); whether to run FastAPI frontend or CLI
@@ -23,19 +20,17 @@ class App:
     # POSTCONDITION:
     #   -every key layer object is constructed with proper dependancy injection with Frontend or Cli being conditionally constructed
     # RAISES: None
-    def init(self, frontend : bool) -> None:
-
-        self.db = Database(env.get_database_source())
-        self.serv = Service(self.db)
-        self.val = Validator(self.serv)
-        self.san = Sanitizer()
-        self.api = Api(self.serv, self.san, self.val)
+    def __init__(self, frontend=True):
+        db = Database(env.db_src())
+        serv = Service(db)
+        val = Validator(serv)
+        san = Sanitizer()
+        api = Api(serv,san,val)
 
         if frontend:
-            self.display = Frontend(self.api)
+            self.display = Frontend(api)
         else:
-            self.display = Cli(self.api)
-
+            self.display = Cli(api)
 
 
     # INPUT: None
