@@ -1,5 +1,6 @@
 from .environment import Environment as env
 from presentation import Cli, Frontend
+from interface import Api
 from sanitization import Sanitizer
 from validation import Validator
 from orchestration import Service
@@ -18,15 +19,9 @@ class App:
     #	-frontend(bool); whether to run FastAPI frontend or CLI
     # OUTPUT: None
     # PRECONDITION:
-    #	-testing; is True or False
     #	-frontend; is True or False
     # POSTCONDITION:
-    #   -self.san; Sanitizer constructed
-    #	-self.db; Database constructed with db source
-    #	-self.serv; Service constructed with self.db injection
-    #	-self.val; Validator constructed with self.serv injection
-    #	-frontend=True; self.display is Frontend with serv, san, val injection
-    #	-frontend=False; self.display is Cli with serv, san, val injection
+    #   -every key layer object is constructed with proper dependancy injection with Frontend or Cli being conditionally constructed
     # RAISES: None
     def init(self, frontend : bool) -> None:
 
@@ -34,11 +29,12 @@ class App:
         self.serv = Service(self.db)
         self.val = Validator(self.serv)
         self.san = Sanitizer()
+        self.api = Api(self.serv, self.san, self.val)
 
         if frontend:
-            self.display = Frontend(self.serv, self.san, self.val)
+            self.display = Frontend(self.api)
         else:
-            self.display = Cli(self.serv, self.san, self.val)
+            self.display = Cli(self.api)
 
 
 

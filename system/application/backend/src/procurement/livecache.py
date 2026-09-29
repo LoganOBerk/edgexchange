@@ -18,6 +18,7 @@ persistent_cache = defaultdict(lambda : {"sector" : None, "float" : None})
 
 cache_lock = Condition(Lock())
 
+
 # INPUT:
 #    -ticker(str); ticker symbol to update
 # OUTPUT: None
@@ -31,7 +32,6 @@ def sync_price(ticker : str) -> None:
     if read(ticker, "quote") is not None:
         cache[ticker]["quote"]["price"] = read(ticker, "price")
     
-
 
 # INPUT:
 #    -ticker(str); ticker symbol to update
@@ -47,7 +47,6 @@ def write_quote(ticker : str, quote : dict) -> None:
     cache[ticker]["quote_date"] = date.today()
     sync_price(ticker)
     
-
 
 # INPUT:
 #    -ticker(str); ticker symbol to update

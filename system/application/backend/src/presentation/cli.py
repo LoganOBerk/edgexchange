@@ -1,6 +1,5 @@
 from .visualizer import Visualizer
 from common.errors import ValidationError
-from interface import Api
 
 # INPUT:
 #   -selection(str); a selection input
@@ -23,9 +22,9 @@ def clean_selection(selection : str) -> int | None:
 #   -Cli provides a user interaction abstraction
 #   -Handles all user interaction and enforces program control flow
 class Cli:
-    def __init__(self, service, sanitizer, validator):
+    def __init__(self, api):
         self.user_account = None
-        self.api = Api(service, sanitizer, validator)
+        self.api = api
 
 
     # INPUT: None

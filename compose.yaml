@@ -7,7 +7,7 @@ services:
       context: ./system/database
       dockerfile: Dockerfile
     volumes:
-      - dbdata:/var/lib/postgresql/data
+      - systemdata:/var/lib/postgresql/data
     ports:
       - "${DBPORT}:5432"
     environment:
@@ -20,13 +20,29 @@ services:
       timeout: 5s
       retries: 5
 
-  cache:
+  livecache:
     restart: always
     build: 
       context: ./system/cache
       dockerfile: Dockerfile
     ports:
-      - "${CHPORT}:6379"
+      - "${LCHPORT}:6379"
+    command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save --appendonly yes''
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  sessioncache:
+    restart: always
+    build: 
+      context: ./system/cache
+      dockerfile: Dockerfile
+    volumes:
+      - sessiondata:/data
+    ports:
+      - "${SCHPORT}:6379"
     command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -46,7 +62,8 @@ services:
       - "${BEPORT}:8000"
     environment:
       DATABASE_SOURCE: ${DATABASE_SOURCE}
-      CACHE_SOURCE: ${CACHE_SOURCE}
+      LIVE_CACHE_SOURCE: ${LIVE_CACHE_SOURCE}
+      SESSION_CACHE_SOURCE: ${SESSION_CACHE_SOURCE}
       PYTHONDONTWRITEBYTECODE: "1"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
@@ -56,7 +73,8 @@ services:
       start_period: 10s
     depends_on:
       database: { condition: service_healthy }
-      cache: { condition: service_healthy }
+      livecache: { condition: service_healthy }
+      sessioncache: { condition: service_healthy } 
 
   frontend:
     restart: always
@@ -75,4 +93,6 @@ services:
       backend: { condition: service_healthy }
 
 volumes:
-  dbdata:
+  systemdata:
+  sessiondata:
+
