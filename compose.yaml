@@ -1,98 +1,60 @@
 name: edgexchange
 
-services:
-  database:
-    restart: always
-    build: 
-      context: ./system/database
-      dockerfile: Dockerfile
-    volumes:
-      - systemdata:/var/lib/postgresql/data
-    ports:
-      - "${DBPORT}:5432"
-    environment:
-      POSTGRES_USER: ${DBUSER}
-      POSTGRES_PASSWORD: ${DBPASSWORD}
-      POSTGRES_DB: ${DBNAME}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${DBNAME}", "-U", "${DBUSER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+x-cache: &cache
+  restart: always
+  build: ./system/cache
+  environment:
+    CHUSER: ${CHUSER}
+    CHPASSWORD: ${CHPASSWORD}
 
+services:
   livecache:
-    restart: always
-    build: 
-      context: ./system/cache
-      dockerfile: Dockerfile
-    ports:
-      - "${LCHPORT}:6379"
-    command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save --appendonly yes''
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    <<: *cache
+    ports: ["${LCHPORT}:6379"]
+    command: ["--save", ""]
 
   sessioncache:
-    restart: always
-    build: 
-      context: ./system/cache
-      dockerfile: Dockerfile
+    <<: *cache
     volumes:
       - sessiondata:/data
-    ports:
-      - "${SCHPORT}:6379"
-    command: redis-server --user ${CHUSER} on >${CHPASSWORD} ~* +@all --save ''
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    ports: ["${SCHPORT}:6379"]
+    command: ["--appendonly", "yes"]
+
+  database:
+    restart: always
+    build: ./system/database
+    volumes:
+      - systemdata:/data
+    ports: ["${DBPORT}:5432"]
+    environment:
+      DBUSER: ${DBUSER}
+      DBPASSWORD: ${DBPASSWORD}
+      DBNAME: ${DBNAME}
 
   backend:
     restart: on-failure
-    build: 
-      context: ./system/application/backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./system/application/backend:/backend
-      - /backend/.venv
-    ports:
-      - "${BEPORT}:8000"
+    build: ./system/application/backend
+    ports: ["${BEPORT}:8000"]
     environment:
       DATABASE_SOURCE: ${DATABASE_SOURCE}
       LIVE_CACHE_SOURCE: ${LIVE_CACHE_SOURCE}
       SESSION_CACHE_SOURCE: ${SESSION_CACHE_SOURCE}
-      PYTHONDONTWRITEBYTECODE: "1"
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
-      interval: 3s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
     depends_on:
       database: { condition: service_healthy }
       livecache: { condition: service_healthy }
-      sessioncache: { condition: service_healthy } 
+      sessioncache: { condition: service_healthy }
 
   frontend:
     restart: always
-    build: 
-      context: ./system/application/frontend
-      dockerfile: Dockerfile
+    build: ./system/application/frontend
     volumes:
       - ./system/application/frontend:/frontend
       - /frontend/node_modules
       - /frontend/.next
-    ports:
-      - "${FEPORT}:3000"
-    environment:
-      WATCHPACK_POLLING: "true"
+    ports: ["${FEPORT}:3000"]
     depends_on:
       backend: { condition: service_healthy }
 
 volumes:
   systemdata:
   sessiondata:
-
