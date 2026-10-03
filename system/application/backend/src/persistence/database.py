@@ -12,18 +12,26 @@ from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredSto
 #   -Database provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
 class Database:
-
-    ctx = ContextVar("conn", default = None)
-
     def __init__(self, source):
+        self.ctx = ContextVar("conn", default = None)
         self.pool = ConnectionPool(conninfo = source)
+        
         with self.transaction(): 
             self.build_database()
 
+
+    # INPUT: None
+    # OUTPUT: 
+    #   self.ctx.get(); a connection from the current context
+    # PRECONDITION:
+    #   -self.ctx; specific thread ctx contains a connection
+    # POSTCONDITION: None
+    # RAISES: None
     @property
     def conn(self):
         return self.ctx.get()
 
+    
     # INPUT: None
     # OUTPUT: None
     # PRECONDITION:
@@ -417,8 +425,7 @@ class Database:
     #   self.conn; is a valid open database connection
     # POSTCONDITION:
     #   -database; is updated with transaction changes or rolled back
-    # RAISES:
-    #   -Exception; any exception is raised that occurs in context block
+    # RAISES: None
     @contextmanager
     def transaction(self):
         with self.pool.connection() as conn:
