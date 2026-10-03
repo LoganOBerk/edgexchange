@@ -1,5 +1,7 @@
 import psycopg
 from psycopg import Error as PsycopgError
+from psycopg_pool import ConnectionPool
+from contextvars import ContextVar
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
@@ -10,10 +12,17 @@ from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredSto
 #   -Database provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
 class Database:
-    def __init__(self, source):
-        self.conn = psycopg.connect(source)
-        self.build_database()
 
+    ctx = ContextVar("conn", default = None)
+
+    def __init__(self, source):
+        self.pool = ConnectionPool(conninfo = source)
+        with self.transaction(): 
+            self.build_database()
+
+    @property
+    def conn(self):
+        return self.ctx.get()
 
     # INPUT: None
     # OUTPUT: None
@@ -61,10 +70,8 @@ class Database:
         try:
 
             cursor.execute("\n".join([module, create_user_table, create_portfolios_table, create_stocks_table]))
-            self.conn.commit()
 
         except PsycopgError as e:
-            self.conn.rollback()
             raise DatabaseError(f"build_database failed: {e}") from e
 
 
@@ -414,9 +421,9 @@ class Database:
     #   -Exception; any exception is raised that occurs in context block
     @contextmanager
     def transaction(self):
-        try:
-            yield
-            self.conn.commit()
-        except Exception:
-            self.conn.rollback()
-            raise
+        with self.pool.connection() as conn:
+            token = self.ctx.set(conn)
+            try:
+                yield
+            finally:
+                self.ctx.reset(token)

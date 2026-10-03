@@ -88,8 +88,8 @@ class Service:
     #   -ServiceError; propagated from Database.pull_user()
     def field_user(self, username : str) -> StoredUser:
         try:
-
-            user_data = self.db.pull_user(username)
+            with self.db.transaction():
+                user_data = self.db.pull_user(username)
 
         except DatabaseError as e:
             raise ServiceError("Failed to find user data") from e
@@ -109,8 +109,8 @@ class Service:
     #   -ServiceError; database call fails
     def find_account(self, username : str) -> User:
         try:
-
-            user = build_user(self.db.pull_aggregate(username))
+            with self.db.transaction():
+                user = build_user(self.db.pull_aggregate(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
