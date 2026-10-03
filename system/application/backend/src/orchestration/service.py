@@ -6,9 +6,6 @@ from procurement import LiveCache as lcac
 from persistence import StoredAggregate, StoredUser
 
 
-
-
-
 # INPUT:
 #   -data(StoredAggregate); all data related to user
 # OUTPUT:
@@ -152,7 +149,6 @@ class Service:
     #   -ServiceError; database call fails
     def fund_account(self, user : User, funds_request : float) -> None:
         try:
-
             with self.db.transaction():
                 self.db.update_funds(user.id, funds_request)
 
@@ -176,7 +172,6 @@ class Service:
     #   -ServiceError; database call fails
     def create_portfolio(self, user : User, portfolio_name : str) -> None:
         try:
-
             with self.db.transaction():
                 p_id = self.db.insert_portfolio(user.id, portfolio_name)
 

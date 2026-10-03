@@ -30,6 +30,11 @@ def generate_session_id() -> str:
 
 class SessionCache:
 
+    @staticmethod
+    def connect(source):
+        pass
+
+    
     # INPUT:
     #   -user(User); a user account
     # OUTPUT:

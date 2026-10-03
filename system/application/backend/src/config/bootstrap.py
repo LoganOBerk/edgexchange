@@ -1,11 +1,17 @@
 from .environment import Environment as env
 from presentation import Cli, Frontend
+from integration import SessionCache
 from interface import Api
 from sanitization import Sanitizer
 from validation import Validator
 from orchestration import Service
+from procurement import LiveCache
 from persistence import Database
 
+def connect_all():
+    SessionCache.connect(env.sc_src)
+    LiveCache.connect(env.lc_src)
+    Database.connect(env.db_src)
 
 # PURPOSE:
 #	-App provides initialization abstraction
@@ -21,7 +27,8 @@ class App:
     #   -every key layer object is constructed with proper dependancy injection with Frontend or Cli being conditionally constructed
     # RAISES: None
     def __init__(self, frontend=True):
-        db = Database(env.db_src())
+        connect_all()
+        db = Database()
         serv = Service(db)
         val = Validator(serv)
         san = Sanitizer()
@@ -32,7 +39,7 @@ class App:
         else:
             self.display = Cli(api)
 
-
+    
     # INPUT: None
     # OUTPUT: None
     # PRECONDITION:

@@ -7,16 +7,23 @@ from common.errors import DatabaseError
 from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredStock
 
 
+pool = None
+
 # PURPOSE: 
 #   -Database provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
 class Database:
-    def __init__(self, source):
+    def __init__(self):
         self.ctx = ContextVar("conn")
-        self.pool = ConnectionPool(conninfo = source)
         
         with self.transaction(): 
             self.build_database()
+
+
+    @staticmethod
+    def connect(source):
+        global pool
+        pool = ConnectionPool(conninfo = source)
 
 
     # INPUT: None
@@ -423,7 +430,7 @@ class Database:
     #   -database; is updated with transaction changes or rolled back
     @contextmanager
     def transaction(self):
-        with self.pool.connection() as conn:
+        with pool.connection() as conn:
             token = self.ctx.set(conn)
             try:
                 yield

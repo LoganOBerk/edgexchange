@@ -246,13 +246,17 @@ def run():
         
         time.sleep(max(0, REFRESH_INTERVAL - latency))
 
-Thread(target = run, daemon = True).start()
 
 
 # PURPOSE:
 #   -LiveCache provides a cache access abstraction
 #   -allows system to store and re-access fresh stocks to reduce api calls 
 class LiveCache:
+
+    @staticmethod
+    def connect(source):
+        Thread(target = run, daemon = True).start()
+
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_price()
     # RAISES: 

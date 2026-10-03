@@ -19,7 +19,7 @@ router = APIRouter()
 # POSTCONDITION:
 #   -api; passed interface is assigned to global module memory
 # RAISES: None
-def connect(interface) -> None:
+def bind(interface) -> None:
     global api
     api = interface
 

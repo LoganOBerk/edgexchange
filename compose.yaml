@@ -10,14 +10,14 @@ x-cache: &cache
 services:
   livecache:
     <<: *cache
-    ports: ["${LCHPORT}:6379"]
+    ports: ["${LCPORT}:6379"]
     command: ["--save", ""]
 
   sessioncache:
     <<: *cache
     volumes:
       - sessiondata:/data
-    ports: ["${SCHPORT}:6379"]
+    ports: ["${SCPORT}:6379"]
     command: ["--appendonly", "yes"]
 
   database:
