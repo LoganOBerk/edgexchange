@@ -1,4 +1,3 @@
-import psycopg
 from psycopg import Error as PsycopgError
 from psycopg_pool import ConnectionPool
 from contextvars import ContextVar
@@ -13,7 +12,7 @@ from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredSto
 #   -Allows for seperation of database specific operations from buisness logic
 class Database:
     def __init__(self, source):
-        self.ctx = ContextVar("conn", default = None)
+        self.ctx = ContextVar("conn")
         self.pool = ConnectionPool(conninfo = source)
         
         with self.transaction(): 
@@ -419,13 +418,9 @@ class Database:
         return aggregate_data
 
     
-    # INPUT: None
-    # OUTPUT: None
-    # PRECONDITION:
-    #   self.conn; is a valid open database connection
+    # INPUT/OUTPUT/PRECONDITION/RAISES: None
     # POSTCONDITION:
     #   -database; is updated with transaction changes or rolled back
-    # RAISES: None
     @contextmanager
     def transaction(self):
         with self.pool.connection() as conn:
