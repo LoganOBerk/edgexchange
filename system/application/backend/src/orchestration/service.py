@@ -2,7 +2,7 @@ from common.security import secure_creds
 from common.errors import DatabaseError, LiveCacheError, ServiceError
 
 from .domain_models import User, Portfolio, Stock
-from procurement import LiveCache as lcac
+from procurement import LiveCache as lc
 from persistence import StoredAggregate, StoredUser
 
 
@@ -42,7 +42,7 @@ class Service:
     def field_price(ticker : str) -> float:
         try:
                                 
-            price = lcac.get_price(ticker)
+            price = lc.get_price(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to field a price") from e
@@ -57,7 +57,7 @@ class Service:
     def field_existence(ticker : str) -> bool:
         try:
                         
-            exist = lcac.check_existence(ticker)
+            exist = lc.check_existence(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to field if stock exists") from e
@@ -72,7 +72,7 @@ class Service:
     def field_float(ticker : str) -> int:
         try:
                 
-            max_shares = lcac.get_float(ticker)
+            max_shares = lc.get_float(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to field a max share number") from e
@@ -227,7 +227,7 @@ class Service:
 
             ticker, quantity = shares_request
 
-            price = lcac.get_price(ticker)
+            price = lc.get_price(ticker)
             total_cost = price * quantity
 
             s_id = None
@@ -270,7 +270,7 @@ class Service:
 
             ticker, quantity = shares_request
 
-            price = lcac.get_price(ticker)
+            price = lc.get_price(ticker)
             total_value = price * quantity
 
 
@@ -297,7 +297,7 @@ class Service:
     def quote_stock(self, ticker : str):
         try:
         
-            quote = lcac.get_quote(ticker)
+            quote = lc.get_quote(ticker)
 
         except LiveCacheError as e:
             raise ServiceError("Failed to get stock info") from e
@@ -322,7 +322,7 @@ class Service:
             
             for portfolio in portfolios: tickers.update(portfolio.stocks.keys())
 
-            prices = lcac.get_prices(tickers)
+            prices = lc.get_prices(tickers)
 
             for portfolio in portfolios:
                 total = 0
@@ -333,7 +333,7 @@ class Service:
                     price = prices[ticker]
                     quantity = stock.quantity
                     value = quantity * price
-                    sector = lcac.get_sector(ticker)
+                    sector = lc.get_sector(ticker)
                     total += value
 
                     basket["stocks"].append({

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from .sessioncache import SessionCache as scac
+from .sessioncache import SessionCache as sc
 from common.errors import ServiceError, ValidationError, SessionCacheError
 from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest
 from .pydantic_models.responses import UserData, PortfolioData
@@ -80,8 +80,8 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
 
         user = api.find_account(creds)
 
-        if scac.cached(user.id):
-            user = scac.find_active_user(user.id) 
+        if sc.cached(user.id):
+            user = sc.find_active_user(user.id) 
         
 
     except ValidationError as e:
@@ -90,7 +90,7 @@ def login(req : CredsRequest) -> dict[str, str | UserData]:
     except ServiceError as e:
         raise HTTPException(status_code = 401, detail = str(e))
 
-    session_id = scac.start_session(user)
+    session_id = sc.start_session(user)
     
     response = {"session_id" : session_id, "user" : UserData.convert(user)}
 
@@ -114,7 +114,7 @@ def logout(req : LogoutRequest) -> dict[str, str]:
 
     try:
 
-        scac.terminate_session(req.session_id)
+        sc.terminate_session(req.session_id)
 
     except SessionCacheError as e:
         raise HTTPException(status_code = 401, detail = str(e))
@@ -142,7 +142,7 @@ def logout(req : LogoutRequest) -> dict[str, str]:
 def fund(req : FundsRequest) -> dict[str, UserData]:
     try:
 
-        user = scac.find_sessions_user(req.session_id)
+        user = sc.find_sessions_user(req.session_id)
 
         with user.lock:
             api.fund_account(user, req.funds_requested)
@@ -178,7 +178,7 @@ def fund(req : FundsRequest) -> dict[str, UserData]:
 def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
     try:
 
-        user = scac.find_sessions_user(req.session_id)
+        user = sc.find_sessions_user(req.session_id)
 
         with user.lock:
             api.create_portfolio(user, req.name)
@@ -214,7 +214,7 @@ def create_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
     try:
 
-        user = scac.find_sessions_user(req.session_id)
+        user = sc.find_sessions_user(req.session_id)
 
         with user.lock:
             api.remove_portfolio(user, req.name)
@@ -251,7 +251,7 @@ def remove_portfolio(req : PortfolioRequest) -> dict[str, UserData]:
 def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
     try:
 
-        user = scac.find_sessions_user(req.session_id)
+        user = sc.find_sessions_user(req.session_id)
         shares_requested = (req.ticker, req.quantity)
         
         with user.lock:
@@ -294,7 +294,7 @@ def buy(req : TransactionRequest) -> dict[str, PortfolioData]:
 def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
     try:
 
-        user = scac.find_sessions_user(req.session_id)
+        user = sc.find_sessions_user(req.session_id)
         shares_requested = (req.ticker, req.quantity)
         
         with user.lock:
@@ -335,7 +335,7 @@ def sell(req : TransactionRequest) -> dict[str, PortfolioData]:
 def get_user(session_id : str) -> dict[str, UserData]:
     try:
 
-        user = scac.find_sessions_user(session_id)
+        user = sc.find_sessions_user(session_id)
 
     except SessionCacheError as e:
         raise HTTPException(status_code = 401, detail = str(e))
@@ -387,7 +387,7 @@ async def get_live_portfolio_data(session_id : str) -> StreamingResponse:
 
     try:
     
-        user = scac.find_sessions_user(session_id)
+        user = sc.find_sessions_user(session_id)
     
     except SessionCacheError as e:
         raise HTTPException(status_code = 401, detail = str(e))
