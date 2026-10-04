@@ -6,6 +6,10 @@ load_dotenv()
 class Environment:
 
     @staticmethod
+    def ao_cfg():
+        return os.getenv("ALLOWED_ORIGINS").split(",")
+    
+    @staticmethod
     def lc_src():
         return os.getenv("LIVE_CACHE_SOURCE")
     

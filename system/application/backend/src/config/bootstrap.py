@@ -9,15 +9,15 @@ from procurement import LiveCache
 from persistence import Database
 
 def connect_all():
-    SessionCache.connect(env.sc_src)
-    LiveCache.connect(env.lc_src)
-    Database.connect(env.db_src)
+    SessionCache.connect(env.sc_src())
+    LiveCache.connect(env.lc_src())
+    Database.connect(env.db_src())
 
 # PURPOSE:
 #	-App provides initialization abstraction
 #	-Allows for clean dependency injection and easy swaps between display types
 class App:
-
+    
     # INPUT:
     #	-frontend(bool); whether to run FastAPI frontend or CLI
     # OUTPUT: None
@@ -35,7 +35,7 @@ class App:
         api = Api(serv,san,val)
 
         if frontend:
-            self.display = Frontend(api)
+            self.display = Frontend(api, env.ao_cfg())
         else:
             self.display = Cli(api)
 
