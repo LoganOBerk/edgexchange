@@ -15,8 +15,7 @@ services:
 
   sessioncache:
     <<: [*cache, *env]
-    volumes:
-      - sessiondata:/data
+    volumes: [sessiondata:/data]
     ports: ["${SCPORT}:6379"]
     command: ["--appendonly", "yes"]
 
@@ -24,8 +23,7 @@ services:
     <<: *env
     restart: always
     build: ./system/database
-    volumes:
-      - systemdata:/data
+    volumes: [systemdata:/data]
     ports: ["${DBPORT}:5432"]
 
   backend:
@@ -42,7 +40,7 @@ services:
     <<: *env
     restart: always
     build: ./system/application/frontend
-    volumes:
+    volumes: 
       - ./system/application/frontend:/frontend
       - /frontend/node_modules
       - /frontend/.next
