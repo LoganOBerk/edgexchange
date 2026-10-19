@@ -5,11 +5,7 @@ from common.errors import ServiceError, ValidationError, SessionCacheError
 from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest
 from .pydantic_models.responses import UserData, PortfolioData
 
-
-api = None
-sc = None
 router = APIRouter()
-
 
 # INPUT:
 #   -interface(Api); functional interface
@@ -20,10 +16,8 @@ router = APIRouter()
 #   -api; passed interface is assigned to global module memory
 # RAISES: None
 def bind(interface, sessions) -> None:
-    global api
-    global sc
-    api = interface
-    sc = sessions
+    global api, sc
+    api, sc = interface, sessions
 
 
 # INPUT:
