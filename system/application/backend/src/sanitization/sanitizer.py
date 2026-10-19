@@ -38,9 +38,9 @@ class Sanitizer:
     # POSTCONDITION:
     #   -credentials; see Sanitizer.sanitize_username() & Sanitizer.sanitize_password() POSTCONDITIONS
     # RAISES: None
-    @staticmethod
-    def sanitize_credentials(credentials : tuple[str, str]) -> tuple[str, str]:
-        credentials = Sanitizer.sanitize_username(credentials[0]), Sanitizer.sanitize_password(credentials[1])
+    @classmethod
+    def sanitize_credentials(cls, credentials : tuple[str, str]) -> tuple[str, str]:
+        credentials = cls.sanitize_username(credentials[0]), cls.sanitize_password(credentials[1])
         return credentials
 
 
@@ -116,9 +116,9 @@ class Sanitizer:
     # POSTCONDITION:
     #   -shares_request; see Sanitizer.sanitize_ticker() & Sanitizer.sanitize_quantity() POSTCONDITIONS
     # RAISES: None
-    @staticmethod
-    def sanitize_shares_request(shares_request : tuple[str,str]) -> tuple[str, int | None]:
-        shares_request = Sanitizer.sanitize_ticker(shares_request[0]), Sanitizer.sanitize_quantity(shares_request[1])
+    @classmethod
+    def sanitize_shares_request(cls, shares_request : tuple[str,str]) -> tuple[str, int | None]:
+        shares_request = cls.sanitize_ticker(shares_request[0]), cls.sanitize_quantity(shares_request[1])
         return shares_request
 
 
