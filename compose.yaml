@@ -1,43 +1,48 @@
 name: edgexchange
 
-x-env: &env
-  env_file: .env
-
-x-cache: &cache
+x-cache: &ch
   restart: always
   build: ./system/cache
 
+x-database: &db
+  restart: always
+  build: ./system/database
+
 services:
-  livecache:
-    <<: [*cache, *env]
-    ports: ["${LCPORT}:6379"]
+  livech:
+    <<: *ch
     command: ["--save", ""]
+    environment:
+      - CHUSER=${LCUSER}
+      - CHPASS=${LCPASS} 
 
-  sessioncache:
-    <<: [*cache, *env]
+  sessionch:
+    <<: *ch
     volumes: [sessiondata:/data]
-    ports: ["${SCPORT}:6379"]
     command: ["--appendonly", "yes"]
+    environment:
+      - CHUSER=${SCUSER}
+      - CHPASS=${SCPASS}
 
-  database:
-    <<: *env
-    restart: always
-    build: ./system/database
-    volumes: [systemdata:/data]
-    ports: ["${DBPORT}:5432"]
+  primarydb:
+    <<: *db
+    volumes: [primarydata:/data]
+    environment:
+      - DBNAME=${PDNAME}
+      - DBUSER=${PDUSER}
+      - DBPASS=${PDPASS}
 
   backend:
-    <<: *env
     restart: on-failure
     build: ./system/application/backend
     ports: ["${BEPORT}:8000"]
+    environment: [PDSOURCE, LCSOURCE, SCSOURCE, ORIGINS]
     depends_on:
-      database: { condition: service_healthy }
-      livecache: { condition: service_healthy }
-      sessioncache: { condition: service_healthy }
+      primarydb: { condition: service_healthy }
+      livech: { condition: service_healthy }
+      sessionch: { condition: service_healthy }
 
   frontend:
-    <<: *env
     restart: always
     build: ./system/application/frontend
     volumes: 
@@ -49,5 +54,5 @@ services:
       backend: { condition: service_healthy }
 
 volumes:
-  systemdata:
+  primarydata:
   sessiondata:

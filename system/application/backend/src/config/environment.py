@@ -7,20 +7,16 @@ class Environment:
 
     @staticmethod
     def ao_cfg():
-        return os.getenv("ALLOWED_ORIGINS").split(",")
+        return os.getenv("ORIGINS").split(",")
     
     @staticmethod
     def lc_src():
-        return os.getenv("LIVE_CACHE_SOURCE")
+        return os.getenv("LCSOURCE")
     
     @staticmethod
     def sc_src():
-        return os.getenv("SESSION_CACHE_SOURCE")
+        return os.getenv("SCSOURCE")
     
     @staticmethod
-    def db_src():
-        return os.getenv("DATABASE_SOURCE")
-
-    @staticmethod
-    def db_tsrc():
-        return os.getenv("DATABASE_TEST_SOURCE")
+    def pd_src():
+        return os.getenv("PDSOURCE")

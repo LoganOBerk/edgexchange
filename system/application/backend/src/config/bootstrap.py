@@ -11,7 +11,7 @@ from persistence import Database
 def connect_all():
     SessionCache.connect(env.sc_src())
     LiveCache.connect(env.lc_src())
-    Database.connect(env.db_src())
+    Database.connect(env.pd_src())
 
 # PURPOSE:
 #	-App provides initialization abstraction
