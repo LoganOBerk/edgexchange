@@ -14,7 +14,7 @@ services:
     command: ["--save", ""]
     environment:
       - CHUSER=${LCUSER}
-      - CHPASS=${LCPASS} 
+      - CHPASS=${LCPASS}
 
   sessionch:
     <<: *ch
