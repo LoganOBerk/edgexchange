@@ -30,8 +30,7 @@ def generate_session_id() -> str:
 
 class SessionCache:
 
-    @staticmethod
-    def connect(source):
+    def __init__(self, source):
         pass
 
     

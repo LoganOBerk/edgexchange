@@ -252,11 +252,8 @@ def run():
 #   -LiveCache provides a cache access abstraction
 #   -allows system to store and re-access fresh stocks to reduce api calls 
 class LiveCache:
-
-    @staticmethod
-    def connect(source):
+    def __init__(self, source):
         Thread(target = run, daemon = True).start()
-
 
     # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in ExternalApi.get_price()
     # RAISES: 

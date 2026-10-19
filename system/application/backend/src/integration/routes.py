@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from .sessioncache import SessionCache as sc
 from common.errors import ServiceError, ValidationError, SessionCacheError
 from .pydantic_models.requests import LogoutRequest, CredsRequest, FundsRequest, PortfolioRequest, TransactionRequest
 from .pydantic_models.responses import UserData, PortfolioData
 
 
 api = None
+sc = None
 router = APIRouter()
 
 
@@ -19,9 +19,11 @@ router = APIRouter()
 # POSTCONDITION:
 #   -api; passed interface is assigned to global module memory
 # RAISES: None
-def bind(interface) -> None:
+def bind(interface, sessions) -> None:
     global api
+    global sc
     api = interface
+    sc = sessions
 
 
 # INPUT:

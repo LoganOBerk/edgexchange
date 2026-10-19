@@ -8,18 +8,14 @@ from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredSto
 
 
 # PURPOSE: 
-#   -Database provides a database operation abstraction
+#   -PrimaryDatabase provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
-class Database:
-    def __init__(self):
+class PrimaryDatabase:
+    def __init__(self, source):
         self.ctx = ContextVar("conn")
+        self.pool = ConnectionPool(conninfo = source)
         with self.transaction(): 
             self.build_database()
-
-
-    @classmethod
-    def connect(cls, source):
-        cls.pool = ConnectionPool(conninfo = source)
 
 
     # INPUT: None
