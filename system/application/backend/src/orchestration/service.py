@@ -30,8 +30,8 @@ def build_user(data : StoredAggregate) -> User:
 #   -Service provides a routing/serving, and memory populator abstraction
 #   -Decouples business logic from the database and interface layers
 class Service:
-    def __init__(self, primarydb, livecache):
-        self.pd = primarydb
+    def __init__(self, accountrepo, livecache):
+        self.acc = accountrepo
         self.lc = livecache
 
 
@@ -77,13 +77,13 @@ class Service:
         return max_shares
 
 
-    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in PrimaryDatabase.pull_user()
+    # INPUT/OUTPUT/PRECONDITION/POSTCONDITION: see respective fields in AccountRepository.pull_user()
     # RAISES: 
-    #   -ServiceError; propagated from PrimaryDatabase.pull_user()
+    #   -ServiceError; propagated from AccountRepository.pull_user()
     def field_user(self, username : str) -> StoredUser:
         try:
-            with self.pd.transaction():
-                user_data = self.pd.pull_user(username)
+            with self.acc.transaction():
+                user_data = self.acc.pull_user(username)
 
         except DatabaseError as e:
             raise ServiceError("Failed to find user data") from e
@@ -103,8 +103,8 @@ class Service:
     #   -ServiceError; database call fails
     def find_account(self, username : str) -> User:
         try:
-            with self.pd.transaction():
-                user = build_user(self.pd.pull_aggregate(username))
+            with self.acc.transaction():
+                user = build_user(self.acc.pull_aggregate(username))
 
         except DatabaseError as e:
             raise ServiceError("Failed to find account") from e
@@ -118,15 +118,15 @@ class Service:
     # PRECONDITION:
     #   -credentials; username and password are non-empty strings, see Validator.account_validator() POSTCONDITION
     # POSTCONDITION: 
-    #   -database; see PrimaryDatabase.insert_user() POSTCONDITION
+    #   -database; see AccountRepository.insert_user() POSTCONDITION
     # RAISES: 
     #   -ServiceError; database call fails
     def create_account(self, credentials : tuple[str, str]) -> None:
         credentials = secure_creds(credentials)
 
         try:
-            with self.pd.transaction():
-                self.pd.insert_user(credentials)
+            with self.acc.transaction():
+                self.acc.insert_user(credentials)
 
         except DatabaseError as e:
             raise ServiceError("Failed to create account") from e
@@ -140,14 +140,14 @@ class Service:
     #   -user; account info is up to date
     #   -funds_request; > 0
     # POSTCONDITION: 
-    #   -database; see PrimaryDatabase.update_funds() POSTCONDITION
+    #   -database; see AccountRepository.update_funds() POSTCONDITION
     #   -user; funds are added to account
     # RAISES:
     #   -ServiceError; database call fails
     def fund_account(self, user : User, funds_request : float) -> None:
         try:
-            with self.pd.transaction():
-                self.pd.update_funds(user.id, funds_request)
+            with self.acc.transaction():
+                self.acc.update_funds(user.id, funds_request)
 
         except DatabaseError as e:
             raise ServiceError("Failed to update funds") from e
@@ -163,14 +163,14 @@ class Service:
     #   -user; account info is up to date
     #   -portfolio_name; see Validator.portfolio_validator() POSTCONDITION
     # POSTCONDITION: 
-    #   -database; see PrimaryDatabase.insert_portfolio() POSTCONDITION
+    #   -database; see AccountRepository.insert_portfolio() POSTCONDITION
     #   -user; empty portfolio with portfolio_name is added to account
     # RAISES:
     #   -ServiceError; database call fails
     def create_portfolio(self, user : User, portfolio_name : str) -> None:
         try:
-            with self.pd.transaction():
-                p_id = self.pd.insert_portfolio(user.id, portfolio_name)
+            with self.acc.transaction():
+                p_id = self.acc.insert_portfolio(user.id, portfolio_name)
 
         except DatabaseError as e:
             raise ServiceError("Failed to create portfolio") from e
@@ -186,7 +186,7 @@ class Service:
     #   -user; account info is up to date
     #   -portfolio_name; see Validator.portfolio_validator() POSTCONDITION
     # POSTCONDITION:
-    #   -database; see PrimaryDatabase.delete_portfolio() POSTCONDITION
+    #   -database; see AccountRepository.delete_portfolio() POSTCONDITION
     #   -user; portfolio is removed from in memory account
     # RAISES:
     #   -ServiceError; database call fails
@@ -194,8 +194,8 @@ class Service:
         try:
 
             portfolio = user.portfolios[portfolio_name]
-            with self.pd.transaction():
-                self.pd.delete_portfolio(portfolio.id)
+            with self.acc.transaction():
+                self.acc.delete_portfolio(portfolio.id)
 
         except DatabaseError as e:
             raise ServiceError("Failed to remove portfolio") from e
@@ -213,7 +213,7 @@ class Service:
     #   -portfolio; portfolio is up to date
     #   -shares_request; see Validator.shares_request_validator() POSTCONDITION
     # POSTCONDITION:
-    #   -database; if ticker exists in portfolio see PrimaryDatabase.update_stock(), else see PrimaryDatabase.insert_stock() POSTCONDITION
+    #   -database; if ticker exists in portfolio see AccountRepository.update_stock(), else see AccountRepository.insert_stock() POSTCONDITION
     #   -user; balance is decremented based on purchase cost
     #   -portfolio; stock with matching ticker is added with quantity or updated
     # RAISES:
@@ -230,14 +230,14 @@ class Service:
             s_id = None
 
 
-            with self.pd.transaction():
-                self.pd.update_funds(user.id, -total_cost)
+            with self.acc.transaction():
+                self.acc.update_funds(user.id, -total_cost)
             
                 if portfolio.has_stock(ticker):
                     stock = portfolio.stocks[ticker]
-                    self.pd.update_stock(stock.id, quantity)
+                    self.acc.update_stock(stock.id, quantity)
                 else:
-                    s_id = self.pd.insert_stock(portfolio.id, shares_request)
+                    s_id = self.acc.insert_stock(portfolio.id, shares_request)
 
         except (DatabaseError, LiveCacheError) as e:
             raise ServiceError("Failed to execute buy") from e
@@ -256,7 +256,7 @@ class Service:
     #   -portfolio; portfolio is up to date
     #   -shares_request; see Validator.shares_request_validator() POSTCONDITION
     # POSTCONDITION:
-    #   -database; if quantity equals current holdings see PrimaryDatabase.delete_stock(), else see PrimaryDatabase.update_stock() POSTCONDITION
+    #   -database; if quantity equals current holdings see AccountRepository.delete_stock(), else see AccountRepository.update_stock() POSTCONDITION
     #   -user; balance is incremented by sale value
     #   -portfolio; stock with matching ticker is updated or removed
     # RAISES:
@@ -271,15 +271,15 @@ class Service:
             total_value = price * quantity
 
 
-            with self.pd.transaction():
-                self.pd.update_funds(user.id, total_value)
+            with self.acc.transaction():
+                self.acc.update_funds(user.id, total_value)
 
                 stock = portfolio.stocks[ticker]
 
                 if quantity == stock.quantity:
-                    self.pd.delete_stock(stock.id)
+                    self.acc.delete_stock(stock.id)
                 else:
-                    self.pd.update_stock(stock.id, -quantity)
+                    self.acc.update_stock(stock.id, -quantity)
 
         except (DatabaseError, LiveCacheError) as e:
             raise ServiceError("Failed to execute sell") from e

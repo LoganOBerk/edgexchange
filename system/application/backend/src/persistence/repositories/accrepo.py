@@ -4,13 +4,13 @@ from contextvars import ContextVar
 from contextlib import contextmanager
 
 from common.errors import DatabaseError
-from .data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredStock
+from persistence.data_models import StoredAggregate, StoredUser, StoredPortfolio, StoredStock
 
 
 # PURPOSE: 
-#   -PrimaryDatabase provides a database operation abstraction
+#   -AccountRepository provides a database operation abstraction
 #   -Allows for seperation of database specific operations from buisness logic
-class PrimaryDatabase:
+class AccountRepository:
     def __init__(self, source):
         self.ctx = ContextVar("conn")
         self.pool = ConnectionPool(conninfo = source)

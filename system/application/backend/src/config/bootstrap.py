@@ -22,7 +22,7 @@ class App:
     def __init__(self, frontend=True):
         db, ch, cfg = Database(), Cache(), Config()
 
-        serv = Service(db.pd, ch.lc)
+        serv = Service(db.acc, ch.lc)
         val = Validator(serv)
         san = Sanitizer()
         api = Api(serv,san,val)

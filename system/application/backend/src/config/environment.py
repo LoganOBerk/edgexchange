@@ -18,5 +18,5 @@ class Environment:
         return os.getenv("SCSOURCE")
     
     @staticmethod
-    def pd_src():
-        return os.getenv("PDSOURCE")
+    def db_src():
+        return os.getenv("DBSOURCE")

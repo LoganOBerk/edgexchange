@@ -4,10 +4,6 @@ x-cache: &ch
   restart: always
   build: ./system/cache
 
-x-database: &db
-  restart: always
-  build: ./system/database
-
 services:
   livech:
     <<: *ch
@@ -24,21 +20,22 @@ services:
       - CHUSER=${SCUSER}
       - CHPASS=${SCPASS}
 
-  primarydb:
-    <<: *db
-    volumes: [primarydata:/data]
+  database:
+    restart: always
+    build: ./system/database
+    volumes: [accountdata:/data]
     environment:
-      - DBNAME=${PDNAME}
-      - DBUSER=${PDUSER}
-      - DBPASS=${PDPASS}
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
 
   backend:
     restart: on-failure
     build: ./system/application/backend
     ports: ["${BEPORT}:8000"]
-    environment: [PDSOURCE, LCSOURCE, SCSOURCE, ORIGINS]
+    environment: [DBSOURCE, LCSOURCE, SCSOURCE, ORIGINS]
     depends_on:
-      primarydb: { condition: service_healthy }
+      database: { condition: service_healthy }
       livech: { condition: service_healthy }
       sessionch: { condition: service_healthy }
 
@@ -54,5 +51,5 @@ services:
       backend: { condition: service_healthy }
 
 volumes:
-  primarydata:
+  accountdata:
   sessiondata:

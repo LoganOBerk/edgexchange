@@ -1,7 +1,7 @@
 from .environment import Environment as env
 from procurement import LiveCache
 from integration import SessionCache
-from persistence import PrimaryDatabase
+from persistence import AccountRepository
 
 from functools import cached_property
 
@@ -14,7 +14,7 @@ class Cache:
 
 class Database:
     @cached_property
-    def pd(self): return PrimaryDatabase(env.pd_src())
+    def acc(self): return AccountRepository(env.db_src())
 
 class Config:
     @cached_property
